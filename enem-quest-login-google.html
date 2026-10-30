@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#343db8">
+<title>ENEM Quest – Acesse sua conta</title>
+<style>
+:root{
+  color-scheme:light;
+  --blue:#3942bd;
+  --blue2:#4e5bf0;
+  --ink:#26345f;
+  --muted:#8792b4;
+  --line:#dce3f5;
+  --field:#fff;
+  --danger:#c62839;
+  --success:#12805c;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:#fff}
+body{
+  margin:0;min-height:100vh;min-height:100svh;
+  color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background-color:#fff;
+  background-image:radial-gradient(#dce3ef .85px,transparent .85px);
+  background-size:14px 14px;
+  display:flex;justify-content:center;align-items:center;
+  padding:22px 16px;
+}
+main{width:100%;max-width:390px;margin:auto}
+.auth-shell{
+  width:100%;overflow:hidden;background:#fff;border-radius:25px;
+  box-shadow:0 12px 38px rgba(36,49,105,.13);
+  border:1px solid rgba(220,227,245,.85);
+}
+.hero{
+  height:174px;background:linear-gradient(145deg,#303bb0 0%,#414bd0 58%,#4d56dc 100%);
+  color:#fff;text-align:center;display:flex;align-items:center;justify-content:flex-start;
+  flex-direction:column;padding:26px 18px 0;
+  transition:height .2s ease;
+}
+body[data-view="cadastro"] .hero{height:134px;padding-top:17px}
+.cap{width:66px;height:53px;display:block;margin:0 auto 4px;color:#fff}
+.hero h1{font-size:22px;line-height:1.15;letter-spacing:-.45px;margin:0;font-weight:800}
+.hero p{font-size:11px;line-height:1.4;margin:5px 0 0;color:rgba(255,255,255,.83)}
+.panel{
+  position:relative;background:#fff;border-radius:22px 22px 0 0;
+  margin-top:-1px;padding:18px 20px 19px;
+  min-height:240px;
+}
+#v-login,#v-cadastro,#v-home{width:100%}
+.hide{display:none!important}
+h2{font-size:17px;line-height:1.2;margin:0 0 5px;font-weight:750;color:#28366c}
+.intro{font-size:10px;line-height:1.45;color:var(--muted);margin:0 0 12px;max-width:250px}
+form{margin:0}
+.field{margin:0 0 9px}
+label{display:block;font-size:10px;font-weight:700;color:#344477;margin:0 0 4px}
+.input-wrap{position:relative}
+.input-icon{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:#7182bd;pointer-events:none;
+}
+input{
+  appearance:none;width:100%;height:34px;border-radius:9px;
+  border:1px solid var(--line);background:var(--field);color:#26345f;
+  padding:0 37px 0 29px;font:11px/1.2 inherit;outline:none;
+  box-shadow:0 1px 2px rgba(37,56,111,.025);
+  transition:border-color .15s,box-shadow .15s;
+}
+input::placeholder{color:#9aa5c3;opacity:1}
+input:focus{border-color:#6573e8;box-shadow:0 0 0 2px rgba(78,91,240,.11)}
+input.bad{border-color:var(--danger)}
+.eye{
+  position:absolute;right:4px;top:3px;width:28px;height:28px;border:0;
+  display:grid;place-items:center;background:transparent;color:#8290bd;cursor:pointer;
+  padding:0;border-radius:6px;
+}
+.eye svg{width:15px;height:15px}
+.err{color:var(--danger);font-size:10px;line-height:1.3;margin-top:3px;min-height:0}
+.msg{display:none;margin:9px 0 0;padding:8px 10px;border-radius:8px;font-size:11px;line-height:1.4}
+.msg.e{display:block;background:#fff0f1;color:var(--danger)}
+.msg.o{display:block;background:#eaf8f1;color:var(--success)}
+.btn{
+  width:100%;height:36px;border-radius:9px;border:0;
+  font-size:11px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:filter .15s,transform .1s;
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.p{background:linear-gradient(105deg,#4c5cf0,#4a55e2);color:#fff;box-shadow:0 3px 8px rgba(72,85,224,.18);margin-top:11px}
+.btn.g{height:36px;background:#fff;color:#344477;border:1px solid var(--line);margin-top:10px;font-weight:650}
+.google-mark{width:15px;height:15px;flex:none}
+.or{display:flex;align-items:center;gap:10px;color:#9aa4bf;font-size:10px;margin:10px 0 0}
+.or:before,.or:after{content:"";height:1px;background:#edf0f8;flex:1}
+.alt{text-align:center;margin:13px 0 0;font-size:10px;color:#7885aa}
+.alt a{color:#4659d8;font-weight:750;text-decoration:none}
+.alt a:hover{text-decoration:underline}
+#v-login .panel{padding-top:18px}
+#v-login .field{margin-bottom:10px}
+#v-login .btn.p{margin-top:12px}
+#v-cadastro .panel{padding-top:13px}
+#v-cadastro .field{margin-bottom:7px}
+#v-cadastro .btn.p{margin-top:7px}
+#v-cadastro .or{margin-top:9px}
+#v-cadastro .btn.g{margin-top:8px}
+#v-cadastro .alt{margin-top:10px}
+#v-home .panel{padding-top:22px}
+#v-home p{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0}
+.btn.s{margin-top:18px;background:#fff;border:1px solid var(--line);color:#344477}
+@media(min-width:600px){
+  body{padding:34px 20px}
+  main{max-width:390px}
+  .auth-shell{border-radius:27px}
+}
+@media(max-height:650px){
+  body{align-items:flex-start;padding-top:12px;padding-bottom:12px}
+  .hero{height:145px;padding-top:17px}
+  body[data-view="cadastro"] .hero{height:115px;padding-top:10px}
+  .panel{padding-top:13px;padding-bottom:13px}
+  #v-cadastro .field{margin-bottom:5px}
+}
+</style>
+</head>
+<body>
+<main>
+<div class="auth-shell">
+  <header class="hero">
+    <svg class="cap" viewBox="0 0 100 76" fill="none" aria-hidden="true">
+      <path d="M5 27.5 50 7l45 20.5L50 48 5 27.5Z" fill="currentColor"/>
+      <path d="M22 38v18.5C22 63 34.5 69 50 69s28-6 28-12.5V38L50 51 22 38Z" fill="currentColor"/>
+      <path d="M91 31v22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <path d="M87 54h8l-4 8-4-8Z" fill="currentColor"/>
+    </svg>
+    <h1>ENEM Quest</h1>
+    <p>Sua jornada rumo à aprovação!</p>
+  </header>
+
+  <section id="v-login" class="panel hide">
+    <form id="fl" novalidate>
+      <div class="field">
+        <label for="le">E-mail</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+          <input id="le" type="email" autocomplete="email" inputmode="email" placeholder="Digite seu e-mail">
+        </div>
+        <div class="err" data-for="le"></div>
+      </div>
+      <div class="field">
+        <label for="ls">Senha</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1"/></svg>
+          <input id="ls" type="password" autocomplete="current-password" placeholder="Digite sua senha">
+          <button type="button" class="eye" data-eye="ls" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+          </button>
+        </div>
+        <div class="err" data-for="ls"></div>
+      </div>
+      <div id="ml" class="msg" role="alert"></div>
+      <button class="btn p" type="submit">Entrar</button>
+    </form>
+    <div class="or">ou</div>
+    <button class="btn g" type="button" data-google data-out="ml">
+      <svg class="google-mark" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.9 6.1-15Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8l6.8-5.3Z"/><path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12Z"/></svg>
+      Continuar com Google
+    </button>
+    <p class="alt">Não tem uma conta? <a href="#cadastro">Cadastre-se</a></p>
+  </section>
+
+  <section id="v-cadastro" class="panel hide">
+    <h2>Criar sua conta</h2>
+    <p class="intro">Preencha os dados abaixo para começar sua jornada com o ENEM Quest.</p>
+    <form id="fc" novalidate>
+      <div class="field">
+        <label for="cn">Nome</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20v-1.5a7.5 7.5 0 0 1 15 0V20Z"/></svg>
+          <input id="cn" maxlength="50" autocomplete="name" placeholder="Digite seu nome completo">
+        </div>
+        <div class="err" data-for="cn"></div>
+      </div>
+      <div class="field">
+        <label for="ce">E-mail</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+          <input id="ce" type="email" maxlength="100" autocomplete="email" inputmode="email" placeholder="Digite seu e-mail">
+        </div>
+        <div class="err" data-for="ce"></div>
+      </div>
+      <div class="field">
+        <label for="cs">Senha</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <input id="cs" type="password" autocomplete="new-password" placeholder="Digite sua senha">
+          <button type="button" class="eye" data-eye="cs" aria-label="Mostrar senha" title="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+        </div>
+        <div class="err" data-for="cs"></div>
+      </div>
+      <div class="field">
+        <label for="cc">Confirmar senha</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <input id="cc" type="password" autocomplete="new-password" placeholder="Confirme sua senha">
+          <button type="button" class="eye" data-eye="cc" aria-label="Mostrar senha" title="Mostrar senha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+        </div>
+        <div class="err" data-for="cc"></div>
+      </div>
+      <div id="mc" class="msg" role="alert"></div>
+      <button class="btn p" type="submit">Continuar</button>
+    </form>
+    <div class="or">ou</div>
+    <button class="btn g" type="button" data-google data-out="mc">
+      <svg class="google-mark" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.9 6.1-15Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8l6.8-5.3Z"/><path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12Z"/></svg>
+      Continuar com Google
+    </button>
+    <p class="alt">Já tem uma conta? <a href="#login">Entrar</a></p>
+  </section>
+
+  <section id="v-home" class="panel hide">
+    <h2>Olá, <span id="hn"></span>!</h2>
+    <p>Login realizado. O Painel do Jogador entra na Sprint 5.</p>
+    <button id="out" class="btn s" type="button">Sair</button>
+  </section>
+</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script>
+/* Somente a chave PUBLISHABLE. Nunca coloque a sb_secret aqui. */
+const SUPABASE_URL = "https://vfdrdcdjhjlkzhibyyus.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CBN105HJL2qxD0YRRSpXWw_kbfSCs8K";
+/* O Auth do Supabase é usado SÓ para confirmar a conta Google (PKCE precisa guardar o code_verifier) */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { flowType: "pkce", persistSession: true, autoRefreshToken: false, detectSessionInUrl: true }
+});
+
+/* ===== Sessão local do app ===== */
+let memSessao = null;
+const Sessao = {
+  get(){ try{ return JSON.parse(localStorage.getItem("eq_sessao")); }catch(e){ return memSessao; } },
+  set(v){ memSessao = v; try{ v ? localStorage.setItem("eq_sessao", JSON.stringify(v)) : localStorage.removeItem("eq_sessao"); }catch(e){} }
+};
+
+/* ===== Services (chamam funções SQL do banco) ===== */
+const UsuarioService = {
+  async cadastrar(nome, email, senha){
+    const { data, error } = await sb.rpc("cadastrar_usuario", { p_nome: nome, p_email: email, p_senha: senha });
+    if(error) throw error;
+    return data[0];
+  },
+  async entrar(email, senha){
+    const { data, error } = await sb.rpc("entrar_usuario", { p_email: email, p_senha: senha });
+    if(error) throw error;
+    if(!data || !data.length) throw new Error("invalid login");
+    return data[0];
+  },
+  google(){
+    return sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+  },
+  async entrarGoogle(){
+    const { data, error } = await sb.rpc("entrar_google");
+    if(error) throw error;
+    if(!data || !data.length) throw new Error("SEM_SESSAO_GOOGLE");
+    return data[0];
+  }
+};
+const LogService = {
+  async abrir(userId){
+    const { data, error } = await sb.rpc("registrar_login", { p_user_id: userId });
+    if(error) throw error;
+    return data;
+  },
+  async fechar(logId){
+    if(!logId) return;
+    const { error } = await sb.rpc("registrar_logout", { p_log_id: logId });
+    if(error) throw error;
+  }
+};
+
+/* ===== UI ===== */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const emailOk = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+function setErr(id, t){ $('[data-for="' + id + '"]').textContent = t || ""; $("#" + id).classList.toggle("bad", !!t); }
+function msg(id, t, tipo){ const m = $("#" + id); m.textContent = t || ""; m.className = "msg" + (t ? " " + tipo : ""); }
+function traduzir(e){
+  const m = (e && e.message) || "Erro inesperado.";
+  if(/invalid login/i.test(m)) return "E-mail ou senha incorretos.";
+  if(/EMAIL_JA_CADASTRADO/.test(m)) return "Este e-mail já está cadastrado.";
+  if(/SEM_SESSAO_GOOGLE/.test(m)) return "Não foi possível confirmar sua conta Google. Tente novamente.";
+  if(/provider is not enabled|Unsupported provider/i.test(m)) return "Login com Google não está ativado no Supabase.";
+  if(/could not find the function|schema cache/i.test(m)) return "Funções SQL não encontradas. Rode o SQL no Supabase.";
+  return m;
+}
+
+function route(){
+  const s = Sessao.get();
+  let h = location.hash.slice(1);
+  h = s ? "home" : (h === "cadastro" ? "cadastro" : "login");
+  document.body.dataset.view = h;
+  $$("section").forEach(x => x.classList.add("hide"));
+  $("#v-" + h).classList.remove("hide");
+  if(s) $("#hn").textContent = s.nome || s.email;
+  window.scrollTo(0, 0);
+}
+addEventListener("hashchange", route);
+
+const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+const eyeClosed = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6.1 0 9.5 6 9.5 6a16 16 0 0 1-3.1 3.7M6.2 6.3C3.8 8 2.5 12 2.5 12s3.4 6 9.5 6c1.1 0 2.1-.2 3-.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+$$("[data-eye]").forEach(b => b.onclick = () => {
+  const i = $("#" + b.dataset.eye), visible = i.type === "password";
+  i.type = visible ? "text" : "password";
+  b.innerHTML = visible ? eyeClosed : eyeOpen;
+  b.setAttribute("aria-label", visible ? "Ocultar senha" : "Mostrar senha");
+  b.title = visible ? "Ocultar senha" : "Mostrar senha";
+});
+
+async function run(btn, out, fn){
+  btn.disabled = true;
+  try{ await fn(); }catch(e){ console.error(e); msg(out, traduzir(e), "e"); }
+  finally{ btn.disabled = false; }
+}
+
+$("#fl").onsubmit = ev => {
+  ev.preventDefault(); ["le","ls"].forEach(i => setErr(i, "")); msg("ml", "");
+  const email = $("#le").value.trim().toLowerCase(), senha = $("#ls").value; let ok = true;
+  if(!emailOk(email)){ setErr("le", "Informe um e-mail válido."); ok = false; }
+  if(!senha){ setErr("ls", "Informe sua senha."); ok = false; }
+  if(ok) run(ev.submitter, "ml", async () => {
+    const u = await UsuarioService.entrar(email, senha);
+    const logId = await LogService.abrir(u.user_id);
+    Sessao.set({ userId: u.user_id, nome: u.nome, email: u.email, logId });
+    $("#fl").reset(); location.hash = ""; route();
+  });
+};
+
+$("#fc").onsubmit = ev => {
+  ev.preventDefault(); ["cn","ce","cs","cc"].forEach(i => setErr(i, "")); msg("mc", "");
+  const nome = $("#cn").value.trim(), email = $("#ce").value.trim().toLowerCase(), s = $("#cs").value, c = $("#cc").value; let ok = true;
+  if(nome.length < 2){ setErr("cn", "Informe seu nome."); ok = false; }
+  if(!emailOk(email)){ setErr("ce", "Informe um e-mail válido."); ok = false; }
+  if(s.length < 6){ setErr("cs", "A senha deve ter ao menos 6 caracteres."); ok = false; }
+  if(c !== s){ setErr("cc", "As senhas não coincidem."); ok = false; }
+  if(ok) run(ev.submitter, "mc", async () => {
+    await UsuarioService.cadastrar(nome, email, s);
+    $("#fc").reset();
+    location.hash = "login"; route();
+    $("#le").value = email;
+    msg("ml", "Conta criada com sucesso! Faça login para continuar.", "o");
+  });
+};
+
+/* ===== Google ===== */
+$$("[data-google]").forEach(b => b.onclick = () => run(b, b.dataset.out, async () => {
+  const { error } = await UsuarioService.google();
+  if(error) throw error;
+}));
+
+/* Ao voltar do Google, o supabase-js troca o code por sessão e dispara o evento.
+   Aí o app cria/acha o perfil em User, grava o log e abre a sessão normal. */
+let finalizando = false;
+async function finalizarGoogle(){
+  if(finalizando || Sessao.get()) return;
+  finalizando = true;
+  try{
+    const u = await UsuarioService.entrarGoogle();
+    const logId = await LogService.abrir(u.user_id);
+    Sessao.set({ userId: u.user_id, nome: u.nome, email: u.email, logId });
+  }catch(e){
+    console.error(e); msg("ml", traduzir(e), "e");
+  }finally{
+    try{ await sb.auth.signOut({ scope: "local" }); }catch(e){}
+    history.replaceState(null, "", location.pathname + location.hash);
+    finalizando = false; route();
+  }
+}
+sb.auth.onAuthStateChange((ev, session) => {
+  if(session && (ev === "SIGNED_IN" || ev === "INITIAL_SESSION")) setTimeout(finalizarGoogle, 0);
+});
+
+/* erro devolvido pelo Google/Supabase na URL */
+(function(){
+  const q = new URLSearchParams(location.search), d = q.get("error_description");
+  if(d){ msg("ml", d, "e"); history.replaceState(null, "", location.pathname + location.hash); }
+})();
+
+$("#out").onclick = async () => {
+  const b = $("#out"), s = Sessao.get(); b.disabled = true;
+  try{ if(s) await LogService.fechar(s.logId); }catch(e){ console.error(e); }
+  Sessao.set(null); b.disabled = false; location.hash = "login"; route();
+};
+
+route();
+</script>
+</body>
+</html>
