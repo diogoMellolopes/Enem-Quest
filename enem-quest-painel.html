@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#343db8">
-<title>ENEM Quest – Acesse sua conta</title>
+<title>ENEM Quest</title>
 <style>
 :root{
   color-scheme:light;
@@ -42,6 +42,8 @@ main{width:100%;max-width:390px;margin:auto}
   transition:height .2s ease;
 }
 body[data-view="cadastro"] .hero{height:134px;padding-top:17px}
+body[data-view="home"] .hero,body[data-view="overall"] .hero{height:86px;padding-top:18px}
+body[data-view="home"] .cap,body[data-view="overall"] .cap{display:none}
 .cap{width:66px;height:53px;display:block;margin:0 auto 4px;color:#fff}
 .hero h1{font-size:22px;line-height:1.15;letter-spacing:-.45px;margin:0;font-weight:800}
 .hero p{font-size:11px;line-height:1.4;margin:5px 0 0;color:rgba(255,255,255,.83)}
@@ -50,7 +52,7 @@ body[data-view="cadastro"] .hero{height:134px;padding-top:17px}
   margin-top:-1px;padding:18px 20px 19px;
   min-height:240px;
 }
-#v-login,#v-cadastro,#v-home{width:100%}
+#v-login,#v-cadastro,#v-home,#v-overall{width:100%}
 .hide{display:none!important}
 h2{font-size:17px;line-height:1.2;margin:0 0 5px;font-weight:750;color:#28366c}
 .intro{font-size:10px;line-height:1.45;color:var(--muted);margin:0 0 12px;max-width:250px}
@@ -107,9 +109,72 @@ input.bad{border-color:var(--danger)}
 #v-cadastro .or{margin-top:9px}
 #v-cadastro .btn.g{margin-top:8px}
 #v-cadastro .alt{margin-top:10px}
-#v-home .panel{padding-top:22px}
-#v-home p{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0}
-.btn.s{margin-top:18px;background:#fff;border:1px solid var(--line);color:#344477}
+
+/* ===== Painel do Jogador ===== */
+#v-home{padding:16px 16px 18px}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4c5cf0,#7b86ff);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.hd-t{flex:1;min-width:0}
+.hd-t small{display:block;font-size:10px;color:var(--muted);line-height:1.2}
+.hd-t b{display:block;font-size:15px;line-height:1.25;color:#28366c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:10px;color:#6b7bb8;display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.logout svg{width:16px;height:16px}
+.score{border-radius:16px;background:linear-gradient(145deg,#303bb0,#4d56dc);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:16px;box-shadow:0 6px 16px rgba(60,72,200,.22)}
+.ov{background:none;border:0;border-right:1px solid rgba(255,255,255,.25);color:inherit;font:inherit;cursor:pointer;text-align:center;padding:0 16px 0 0;min-width:78px}
+.ov small{display:block;font-size:9px;opacity:.9;margin-top:3px;font-weight:650}
+.ov:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:8px}
+.ov span,.sc span{display:block;font-size:9px;letter-spacing:.6px;text-transform:uppercase;opacity:.85}
+.ov b{display:block;font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-1px}
+.sc b{display:block;font-size:24px;line-height:1.15;font-weight:800}
+.sc small{display:block;font-size:10px;opacity:.8}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.mc{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:13px;padding:10px;background:#fff}
+.mc i{width:30px;height:30px;border-radius:9px;background:#eef1ff;color:#4659d8;display:grid;place-items:center;flex:none}
+.mc i svg{width:17px;height:17px}
+.mc.fire i{background:#fff1e6;color:#e8730c}
+.mc b{display:block;font-size:16px;line-height:1.1;color:#28366c}
+.mc span{display:block;font-size:9px;color:var(--muted);line-height:1.25;margin-top:1px}
+.cont{width:100%;margin-top:10px;display:flex;align-items:center;gap:10px;text-align:left;border:1px solid #cfd7fb;background:#f5f7ff;border-radius:13px;padding:11px 12px;cursor:pointer;color:inherit;font:inherit}
+.cont:disabled{opacity:.55;cursor:default}
+.cont div{flex:1;min-width:0}
+.cont span{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.cont b{display:block;font-size:13px;color:#28366c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.cont i{width:28px;height:28px;border-radius:50%;background:#4c5cf0;color:#fff;display:grid;place-items:center;flex:none}
+.cont i svg{width:15px;height:15px}
+.sec-t{font-size:11px;font-weight:750;color:#28366c;margin:15px 0 7px}
+.hs{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 6px 16px;margin:0 -16px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+.mt{flex:none;scroll-snap-align:start;min-width:108px;max-width:150px;border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.mt i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:13px;color:#fff;margin-bottom:7px}
+.mt b{display:block;font-size:11px;line-height:1.25;color:#28366c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt small{display:block;font-size:9px;color:var(--muted);margin-top:2px}
+.empty{font-size:10px;color:var(--muted);padding:6px 0}
+.sh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sh button{display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px 4px;font:inherit;font-size:10px;font-weight:650;color:#344477;cursor:pointer}
+.sh button i{width:30px;height:30px;border-radius:10px;background:#eef1ff;color:#4659d8;display:grid;place-items:center}
+.sh button i svg{width:17px;height:17px}
+.toast{margin-top:10px;min-height:14px;font-size:10px;text-align:center;color:#4659d8;font-weight:650}
+
+/* ===== Tela de Overall ===== */
+#v-overall{padding:16px 16px 18px}
+.back{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back button{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:10px;color:#6b7bb8;display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.back button svg{width:16px;height:16px}
+.back h2{margin:0;font-size:16px}
+.big{border-radius:16px;background:linear-gradient(145deg,#303bb0,#4d56dc);color:#fff;text-align:center;padding:18px 16px;box-shadow:0 6px 16px rgba(60,72,200,.22)}
+.big span{display:block;font-size:9px;letter-spacing:.6px;text-transform:uppercase;opacity:.85}
+.big b{display:block;font-size:58px;line-height:1.05;font-weight:800;letter-spacing:-2px;margin:4px 0}
+.big small{display:block;font-size:10px;opacity:.85}
+.pm{display:flex;flex-direction:column;gap:10px}
+.pr{display:flex;align-items:center;gap:10px}
+.pr i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:13px;color:#fff;flex:none}
+.pr>div{flex:1;min-width:0}
+.pr .t{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#28366c}
+.pr .t b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr .t span{color:var(--muted);flex:none;font-size:10px}
+.bar{height:6px;border-radius:99px;background:#edf0f8;margin-top:5px;overflow:hidden}
+.bar u{display:block;height:100%;border-radius:99px;text-decoration:none;transition:width .4s ease}
+
 @media(min-width:600px){
   body{padding:34px 20px}
   main{max-width:390px}
@@ -119,6 +184,7 @@ input.bad{border-color:var(--danger)}
   body{align-items:flex-start;padding-top:12px;padding-bottom:12px}
   .hero{height:145px;padding-top:17px}
   body[data-view="cadastro"] .hero{height:115px;padding-top:10px}
+  body[data-view="home"] .hero,body[data-view="overall"] .hero{height:76px;padding-top:12px}
   .panel{padding-top:13px;padding-bottom:13px}
   #v-cadastro .field{margin-bottom:5px}
 }
@@ -219,10 +285,75 @@ input.bad{border-color:var(--danger)}
     <p class="alt">Já tem uma conta? <a href="#login">Entrar</a></p>
   </section>
 
+  <!-- ===== Painel do Jogador ===== -->
   <section id="v-home" class="panel hide">
-    <h2>Olá, <span id="hn"></span>!</h2>
-    <p>Login realizado. O Painel do Jogador entra na Sprint 5.</p>
-    <button id="out" class="btn s" type="button">Sair</button>
+    <div class="hd">
+      <div class="av" id="av">?</div>
+      <div class="hd-t"><small>Olá,</small><b id="hn"></b></div>
+      <button id="out" class="logout" type="button" aria-label="Sair" title="Sair" data-ic="logout"></button>
+    </div>
+
+    <div id="pmsg" class="msg" role="alert"></div>
+
+    <div class="score">
+      <button class="ov" id="ovbtn" type="button" aria-label="Ver detalhes do Overall"><span>Overall</span><b id="ov">0</b><small>Ver detalhes ›</small></button>
+      <div class="sc"><span>Pontuação geral</span><b id="pg">0</b><small>pontos acumulados</small></div>
+    </div>
+
+    <div class="mini">
+      <div class="mc fire"><i data-ic="flame"></i><div><b id="of">0</b><span>dias de ofensiva</span></div></div>
+      <div class="mc"><i data-ic="check"></i><div><b id="qr">0</b><span>questões respondidas</span></div></div>
+    </div>
+
+    <button class="cont" id="cont" type="button" disabled>
+      <div><span id="cont-l">Continuar</span><b id="cont-n">Carregando...</b></div>
+      <i data-ic="arrow"></i>
+    </button>
+
+    <div class="sec-t">Matérias</div>
+    <div class="hs" id="mats"><span class="empty">Carregando...</span></div>
+
+    <div class="sec-t">Atalhos</div>
+    <div class="sh">
+      <button type="button" data-go="Matérias e fases"><i data-ic="book"></i>Estudar</button>
+      <button type="button" data-go="Ranking"><i data-ic="trophy"></i>Ranking</button>
+      <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
+      <button type="button" data-go="Ofensiva diária"><i data-ic="calendar"></i>Ofensiva</button>
+      <button type="button" data-go="Overall"><i data-ic="star"></i>Overall</button>
+      <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+  </section>
+
+  <!-- ===== Tela de Overall ===== -->
+  <section id="v-overall" class="panel hide">
+    <div class="back">
+      <button id="back" type="button" aria-label="Voltar" title="Voltar" data-ic="back"></button>
+      <h2>Overall</h2>
+    </div>
+
+    <div id="omsg" class="msg" role="alert"></div>
+
+    <div class="big"><span>Seu overall</span><b id="ov2">0</b><small id="ovf">0 pontos ÷ 0 matérias</small></div>
+
+    <div class="mini">
+      <div class="mc"><i data-ic="check"></i><div><b id="qr2">0</b><span>questões respondidas</span></div></div>
+      <div class="mc fire"><i data-ic="flame"></i><div><b id="of2">0</b><span>dias de ofensiva</span></div></div>
+    </div>
+
+    <div class="sec-t">Pontuação por matéria</div>
+    <div class="pm" id="pm"><span class="empty">Carregando...</span></div>
+
+    <div class="sec-t">Atalhos</div>
+    <div class="sh">
+      <button type="button" data-go="Início"><i data-ic="home"></i>Início</button>
+      <button type="button" data-go="Matérias e fases"><i data-ic="book"></i>Estudar</button>
+      <button type="button" data-go="Ranking"><i data-ic="trophy"></i>Ranking</button>
+      <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
+      <button type="button" data-go="Ofensiva diária"><i data-ic="calendar"></i>Ofensiva</button>
+      <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
+    </div>
+    <div class="toast" id="toast2" role="status"></div>
   </section>
 </div>
 </main>
@@ -279,8 +410,16 @@ const LogService = {
     if(error) throw error;
   }
 };
+/* Painel: tudo calculado no banco (função painel_jogador) */
+const PainelService = {
+  async carregar(userId){
+    const { data, error } = await sb.rpc("painel_jogador", { p_user_id: userId });
+    if(error) throw error;
+    return data;
+  }
+};
 
-/* ===== UI ===== */
+/* ===== UI base ===== */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const emailOk = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 function setErr(id, t){ $('[data-for="' + id + '"]').textContent = t || ""; $("#" + id).classList.toggle("bad", !!t); }
@@ -295,14 +434,133 @@ function traduzir(e){
   return m;
 }
 
+/* ===== Ícones do painel ===== */
+const ICONS = {
+  logout:'<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/>',
+  flame:'<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.2 1 2 2 2 0-3-1-5 1-8Z"/>',
+  check:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+  arrow:'<path d="m9 6 6 6-6 6"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M4 5.5v16"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0Z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/>',
+  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14a5 5 0 0 1 5 5"/>',
+  calendar:'<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.5 2.9 1-6.1L3.1 9.5l6.1-.9Z"/>',
+  user:'<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20v-1.5a7.5 7.5 0 0 1 15 0V20Z"/>',
+  back:'<path d="m15 6-6 6 6 6"/>',
+  home:'<path d="M4 11.5 12 5l8 6.5V20h-5v-5H9v5H4Z"/>'
+};
+$$("[data-ic]").forEach(e => {
+  e.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[e.dataset.ic] + '</svg>';
+});
+
+/* ===== Painel do Jogador ===== */
+const CORES = ["#4c5cf0","#e8730c","#12a37f","#c2417d","#7b4fd6","#0d8bbf","#c99a06","#d64545"];
+const fmt = n => Number(n || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+let painelTok = 0, destinoCont = null, toastTimer = null, painelChave = null;
+
+/* Ponto único para ligar as próximas telas (Sprints 4 a 6) */
+function irPara(nome, materia){
+  if(nome === "Overall"){ location.hash = "overall"; return; }
+  if(nome === "Início"){ location.hash = ""; return; }
+  const t = materia ? "Matéria: " + materia.nome + " — tela de questões em breve." : nome + " — em breve.";
+  $$(".toast").forEach(el => { el.textContent = t; });
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $$(".toast").forEach(el => { el.textContent = ""; }); }, 3500);
+}
+
+function resetPainel(){
+  ["ov","pg","of","qr","ov2","of2","qr2"].forEach(i => { $("#" + i).textContent = "0"; });
+  $("#ovf").textContent = "0 pontos ÷ 0 matérias"; $("#pm").innerHTML = '<span class="empty">Carregando...</span>';
+  $("#cont-l").textContent = "Continuar"; $("#cont-n").textContent = "Carregando...";
+  $("#cont").disabled = true; destinoCont = null;
+  $("#mats").innerHTML = '<span class="empty">Carregando...</span>';
+  $$(".toast").forEach(el => { el.textContent = ""; }); msg("pmsg", ""); msg("omsg", "");
+}
+
+function renderOverall(d){
+  $("#ov2").textContent = fmt(d.overall);
+  $("#qr2").textContent = fmt(d.respondidas);
+  $("#of2").textContent = fmt(d.ofensiva);
+  const tm = Number(d.total_materias || 0), pt = Number(d.pontos || 0);
+  $("#ovf").textContent = fmt(pt) + (pt === 1 ? " ponto" : " pontos") + " ÷ " + tm + (tm === 1 ? " matéria" : " matérias");
+  const mats = d.materias || [], box = $("#pm"); box.textContent = "";
+  if(!mats.length){
+    const e = document.createElement("span"); e.className = "empty"; e.textContent = "Nenhuma matéria cadastrada ainda."; box.appendChild(e); return;
+  }
+  const max = Math.max(1, ...mats.map(m => Number(m.pontos) || 0));
+  mats.forEach((m, i) => {
+    const cor = CORES[i % CORES.length], v = Number(m.pontos) || 0;
+    const row = document.createElement("div"); row.className = "pr";
+    const ic = document.createElement("i"); ic.textContent = (m.nome || "?").trim().charAt(0).toUpperCase(); ic.style.background = cor;
+    const col = document.createElement("div");
+    const t = document.createElement("div"); t.className = "t";
+    const n = document.createElement("b"); n.textContent = m.nome;
+    const p = document.createElement("span"); p.textContent = fmt(v) + (v === 1 ? " ponto" : " pontos");
+    t.append(n, p);
+    const bar = document.createElement("div"); bar.className = "bar";
+    const u = document.createElement("u"); u.style.width = (v / max * 100) + "%"; u.style.background = cor;
+    bar.appendChild(u); col.append(t, bar); row.append(ic, col); box.appendChild(row);
+  });
+}
+
+function renderPainel(d){
+  $("#ov").textContent = fmt(d.overall);
+  $("#pg").textContent = fmt(d.pontos);
+  $("#of").textContent = fmt(d.ofensiva);
+  $("#qr").textContent = fmt(d.respondidas);
+  renderOverall(d);
+
+  const mats = d.materias || [];
+  const box = $("#mats"); box.textContent = "";
+  if(!mats.length){
+    const s = document.createElement("span"); s.className = "empty"; s.textContent = "Nenhuma matéria cadastrada ainda."; box.appendChild(s);
+  }
+  mats.forEach((m, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "mt";
+    const ic = document.createElement("i"); ic.textContent = (m.nome || "?").trim().charAt(0).toUpperCase(); ic.style.background = CORES[i % CORES.length];
+    const n = document.createElement("b"); n.textContent = m.nome;
+    const p = document.createElement("small"); p.textContent = fmt(m.pontos) + (Number(m.pontos) === 1 ? " ponto" : " pontos");
+    b.append(ic, n, p); b.onclick = () => irPara("Matéria", m); box.appendChild(b);
+  });
+
+  const cont = $("#cont");
+  if(d.ultima){ destinoCont = d.ultima; $("#cont-l").textContent = "Continuar de onde parou"; $("#cont-n").textContent = d.ultima.nome; cont.disabled = false; }
+  else if(mats.length){ destinoCont = mats[0]; $("#cont-l").textContent = "Comece sua jornada"; $("#cont-n").textContent = mats[0].nome; cont.disabled = false; }
+  else { destinoCont = null; $("#cont-l").textContent = "Continuar"; $("#cont-n").textContent = "Nenhuma matéria disponível"; cont.disabled = true; }
+}
+
+async function carregarPainel(){
+  const s = Sessao.get(); if(!s) return;
+  const tok = ++painelTok; resetPainel();
+  try{
+    const d = await PainelService.carregar(s.userId);
+    if(tok === painelTok) renderPainel(d);
+  }catch(e){
+    if(tok !== painelTok) return;
+    console.error(e); painelChave = null;
+    const falha = "Não foi possível carregar o painel: " + traduzir(e);
+    msg("pmsg", falha, "e"); msg("omsg", falha, "e"); $("#pm").innerHTML = '<span class="empty">—</span>';
+    $("#cont-n").textContent = "—"; $("#mats").innerHTML = '<span class="empty">—</span>';
+  }
+}
+$("#cont").onclick = () => { if(destinoCont) irPara("Matéria", destinoCont); };
+$$("[data-go]").forEach(b => b.onclick = () => irPara(b.dataset.go));
+$("#ovbtn").onclick = () => irPara("Overall");
+$("#back").onclick = () => irPara("Início");
+
+/* ===== Rotas ===== */
 function route(){
   const s = Sessao.get();
   let h = location.hash.slice(1);
-  h = s ? "home" : (h === "cadastro" ? "cadastro" : "login");
+  h = s ? (h === "overall" ? "overall" : "home") : (h === "cadastro" ? "cadastro" : "login");
   document.body.dataset.view = h;
   $$("section").forEach(x => x.classList.add("hide"));
   $("#v-" + h).classList.remove("hide");
-  if(s) $("#hn").textContent = s.nome || s.email;
+  if(s){
+    $("#hn").textContent = s.nome || s.email;
+    $("#av").textContent = ((s.nome || s.email || "?").trim().charAt(0) || "?").toUpperCase();
+    const chave = s.userId + ":" + s.logId;
+    if(painelChave !== chave){ painelChave = chave; carregarPainel(); }
+  } else { painelChave = null; }
   window.scrollTo(0, 0);
 }
 addEventListener("hashchange", route);
