@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENEM Quest — Painel Administrativo</title>
+<style>
+:root{color-scheme:dark;--bg:#080f20;--side:#0b1429;--panel:#101b33;--panel2:#121f3b;--border:#203052;--text:#eef2ff;--muted:#94a6cd;--purple:#6559f5;--blue:#4385ff;--green:#36d6a0;--yellow:#f7c85a;--red:#ff6b83}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:184px minmax(0,1fr)}
+.sidebar{background:linear-gradient(180deg,#0d1730,#0a1224);border-right:1px solid #1c2946;padding:20px 12px;display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;gap:9px;align-items:center;padding:0 5px}.cap{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#6657f4,#4385ff);display:grid;place-items:center;font-size:18px}.brand strong{font-size:16px;letter-spacing:-.4px}.brand strong span{color:#6d7bff}.brand small{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+.nav{display:grid;gap:6px}.nav button{display:flex;gap:12px;align-items:center;text-align:left;border:0;background:transparent;color:#a7b6d8;padding:11px 12px;border-radius:9px;font-size:12px}.nav button:hover,.nav button.active{background:linear-gradient(90deg,#3939a0,#242e65);color:white}.nav button.active{box-shadow:inset 3px 0 #8a7bff}.nav .ico{width:16px;text-align:center;font-size:15px}.side-bottom{margin-top:auto}.topbar{height:54px;border-bottom:1px solid #1c2946;display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 24px;color:#aebce0;font-size:12px}.admin-pill{display:flex;align-items:center;gap:8px}.avatar{width:27px;height:27px;border-radius:50%;background:#7771f5;display:grid;place-items:center;color:white;font-weight:700}
+main{min-width:0}.content{padding:24px 24px 32px;max-width:1500px;margin:auto}.page-head{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:22px}.heading{display:flex;align-items:center;gap:13px}.heading-icon{height:44px;width:44px;border-radius:12px;background:#202b63;color:#8d91ff;display:grid;place-items:center;font-size:22px}.heading h1{font-size:21px;margin:0 0 2px;letter-spacing:-.5px}.heading p{font-size:11px;color:var(--muted);margin:0}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.field{background:#0d1830;border:1px solid #233457;border-radius:8px;color:#e7edff;padding:10px 12px;outline:none;min-height:36px}.field:focus{border-color:#6f76ff}.search{width:min(260px,45vw)}.btn{border:1px solid #2a3b62;background:#18264a;color:#eaf0ff;border-radius:8px;padding:9px 13px}.btn:hover{background:#263765}.btn.primary{background:#5d55eb;border-color:#7169ff}.btn:disabled{opacity:.5;cursor:wait}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}.stat{background:linear-gradient(140deg,#111d37,#0d172d);border:1px solid var(--border);border-radius:12px;padding:17px}.stat-top{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.stat-icon{width:29px;height:29px;display:grid;place-items:center;background:#202d58;border-radius:9px;color:#9da0ff;font-size:16px}.stat strong{display:block;font-size:25px;margin-top:12px;letter-spacing:-.5px}.stat small{color:var(--muted);font-size:10px}
+.panel{background:linear-gradient(145deg,#101b33,#0c162b);border:1px solid var(--border);border-radius:12px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px;border-bottom:1px solid var(--border)}.panel-head h2{margin:0;font-size:14px}.panel-head p{margin:4px 0 0;color:var(--muted);font-size:11px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:690px;font-size:11px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #1d2b49;white-space:nowrap}th{background:#111e38;color:#8ea1cb;font-weight:600}td{color:#d2dcf6}tbody tr:hover{background:#13203a}tbody tr:last-child td{border-bottom:0}.tag{display:inline-block;padding:4px 9px;border-radius:99px;background:#172d54;color:#82aaff;border:1px solid #294d90;font-size:10px}.tag.green{background:#103a37;color:#6de2bd;border-color:#1b6b5a}.tag.yellow{background:#3a3019;color:#ffd56c;border-color:#72551b}.tag.purple{background:#30215a;color:#c3a0ff;border-color:#543b91}.empty{padding:35px;text-align:center;color:var(--muted)}.pagination{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-top:1px solid var(--border);color:#8295bf;font-size:10px}.pager{display:flex;gap:5px}.pager button{min-width:27px;padding:5px;border-radius:6px;border:1px solid transparent;background:transparent;color:#aebce0}.pager button.active{background:#6258ed;color:white}.notice{display:none;padding:12px 14px;border:1px solid #6b4b1e;background:#302719;color:#ffdc8b;border-radius:9px;margin-bottom:16px;font-size:12px}.notice.show{display:block}.login-box{max-width:450px;margin:8vh auto;padding:28px}.login-box h1{margin:0 0 8px}.login-box p{color:var(--muted)}.login-box label{display:block;margin:15px 0 6px;color:#c4d0ec}.login-box input{width:100%}.login-box .btn{width:100%;margin-top:16px}.hide{display:none!important}.user-cell{display:flex;align-items:center;gap:9px}.mini-avatar{width:27px;height:27px;border-radius:50%;background:#465de7;display:grid;place-items:center;font-weight:700;color:white}.muted{color:var(--muted)}.error{color:#ff8797}.success{color:#62e0b3}.mobile-menu{display:none}
+@media(max-width:900px){.app{grid-template-columns:68px minmax(0,1fr)}.sidebar{padding:18px 8px}.brand{justify-content:center;padding:0}.brand div:last-child{display:none}.nav button{justify-content:center;padding:12px 6px}.nav button .label{display:none}.nav .ico{font-size:17px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:20px 15px}.topbar{padding:0 15px}}
+@media(max-width:580px){.page-head{align-items:flex-start;flex-direction:column}.controls{width:100%}.search{width:100%;flex:1}.cards{gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.stat-top{font-size:10px}.heading h1{font-size:19px}.topbar{height:48px}}
+</style>
+</head>
+<body>
+<div id="loginView" class="login-box panel">
+  <div class="brand" style="padding:0;margin-bottom:24px"><div class="cap">🎓</div><div><strong>ENEM <span>Quest</span></strong><small>Painel Administrativo</small></div></div>
+  <h1>Acesso administrativo</h1>
+  <p>Entre com sua conta autorizada para acessar os dados do sistema.</p>
+  <label for="email">E-mail</label><input class="field" id="email" type="email" autocomplete="username" placeholder="admin@email.com">
+  <label for="password">Senha</label><input class="field" id="password" type="password" autocomplete="current-password" placeholder="Sua senha">
+  <button class="btn primary" id="loginBtn">Entrar</button>
+  <p id="loginMsg" role="status"></p>
+</div>
+<div id="appView" class="app hide">
+  <aside class="sidebar">
+    <div class="brand"><div class="cap">🎓</div><div><strong>ENEM <span>Quest</span></strong><small>Painel Administrativo</small></div></div>
+    <nav class="nav" id="nav">
+      <button class="active" data-page="inicio"><span class="ico">⌂</span><span class="label">Início</span></button>
+      <button data-page="usuarios"><span class="ico">♙</span><span class="label">Usuários</span></button>
+      <button data-page="questoes"><span class="ico">▤</span><span class="label">Questões</span></button>
+      <button data-page="grupos"><span class="ico">♧</span><span class="label">Grupos</span></button>
+      <button data-page="rankings"><span class="ico">♜</span><span class="label">Rankings</span></button>
+      <button data-page="logs"><span class="ico">▣</span><span class="label">Logs</span></button>
+      <button data-page="configuracoes"><span class="ico">⚙</span><span class="label">Configurações</span></button>
+    </nav>
+    <nav class="nav side-bottom"><button id="logoutBtn"><span class="ico">⇥</span><span class="label">Sair</span></button></nav>
+  </aside>
+  <main>
+    <header class="topbar"><span>🔔</span><div class="admin-pill"><div class="avatar">A</div><span id="adminName">Administrador</span></div></header>
+    <div class="content">
+      <div id="notice" class="notice"></div>
+      <div class="page-head"><div class="heading"><div class="heading-icon" id="pageIcon">▦</div><div><h1 id="pageTitle">Visão geral</h1><p id="pageSubtitle">Resumo dos dados do ENEM Quest.</p></div></div>
+        <div class="controls"><input class="field search" id="search" placeholder="Buscar nos registros..." aria-label="Buscar nos registros"><select class="field" id="period"><option value="all">Todo o período</option><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option></select><button class="btn" id="refreshBtn">↻ Atualizar</button></div>
+      </div>
+      <section id="stats" class="cards"></section>
+      <section class="panel"><div class="panel-head"><div><h2 id="tableTitle">Atividades recentes</h2><p id="tableSubtitle">Informações consultadas diretamente no Supabase.</p></div><button class="btn" id="exportBtn">Exportar CSV</button></div>
+        <div class="table-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table><div id="empty" class="empty hide">Nenhum registro encontrado.</div></div>
+        <div class="pagination"><span id="countText">Carregando registros...</span><div class="pager" id="pager"></div></div>
+      </section>
+      <p class="muted" style="font-size:10px;margin-top:12px">ENEM Quest · Os dados exibidos dependem das permissões configuradas no Supabase.</p>
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script>
+/*
+ CONFIGURAÇÃO OBRIGATÓRIA:
+ 1) Use a URL e a chave publishable do mesmo projeto Supabase da página de login.
+ 2) Informe abaixo o e-mail da conta que poderá abrir este painel.
+ 3) A lista no HTML serve apenas como barreira de interface. A segurança real deve
+    ser aplicada também no Supabase (RLS/políticas ou função de autorização).
+ Nunca coloque uma chave sb_secret/service_role neste arquivo.
+*/
+const SUPABASE_URL = "https://vfdrdcdjhjlkzhibyyus.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmZHJkY2RqaGpsa3poaWJ5eXVzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5Mjc4MzY2NiwiZXhwIjoyMTA4MzU5NjY2fQ.V0KcjOmbaC23y9W-qENcL4gMXMFopC_Tw4FO1YDkhrE";
+const ADMIN_EMAILS = ["aaa@gmail.com"];
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const state = {page:"inicio", rows:[], allRows:[], pageNo:1, pageSize:10, session:null};
+const meta = {
+ inicio:{title:"Visão geral",subtitle:"Resumo dos dados do ENEM Quest.",icon:"▦"},
+ usuarios:{title:"Usuários",subtitle:"Consulte os perfis cadastrados no sistema.",icon:"♙"},
+ questoes:{title:"Questões",subtitle:"Consulte as questões e suas matérias.",icon:"▤"},
+ grupos:{title:"Grupos",subtitle:"Consulte os grupos e seus códigos de convite.",icon:"♧"},
+ rankings:{title:"Rankings",subtitle:"Visão de progresso com base nas questões respondidas.",icon:"♜"},
+ logs:{title:"Logs",subtitle:"Visualize os registros de login e logout.",icon:"▣"},
+ configuracoes:{title:"Configurações",subtitle:"Informações de acesso e integração.",icon:"⚙"}
+};
+function esc(v){return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function showNotice(t){$("#notice").textContent=t;$("#notice").classList.toggle("show",!!t);}
+function setLoginMsg(t,cls=""){const el=$("#loginMsg");el.textContent=t;el.className=cls;}
+function fmtDate(d){if(!d)return "—";const s=String(d).slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return esc(d);return s.split("-").reverse().join("/");}
+function tag(text,kind=""){return `<span class="tag ${kind}">${esc(text)}</span>`;}
+async function doLogin(){
+ const btn=$("#loginBtn");btn.disabled=true;setLoginMsg("Verificando acesso...");
+ try{
+  const emailInput = $("#email").value.trim().toLowerCase();
+  const senhaInput = $("#password").value;
+
+  // Usa a mesma função RPC do app principal em vez do sb.auth nativo
+  const { data, error } = await sb.rpc("entrar_usuario", { p_email: emailInput, p_senha: senhaInput });
+  
+  if(error || !data || !data.length) {
+      throw new Error("E-mail ou senha incorretos.");
+  }
+
+  const email = (data[0].email || emailInput).toLowerCase();
+
+  // Verifica se o e-mail está na lista de administradores
+  if(!ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email)){
+   throw new Error("E-mail não está autorizado no painel.");
+  }
+
+  // Simula a sessão para a interface administrativa funcionar
+  state.session = { user: { email: email } };
+  $("#adminName").textContent = email;
+  $("#loginView").classList.add("hide");
+  $("#appView").classList.remove("hide");
+  setLoginMsg("");
+  
+  await loadPage("inicio");
+ }catch(e){
+     setLoginMsg(e.message||"Não foi possível entrar.","error");
+ }
+ finally{btn.disabled=false;}
+}
+$("#loginBtn").addEventListener("click",doLogin);
+$("#password").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+$("#logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();state.session=null;$("#appView").classList.add("hide");$("#loginView").classList.remove("hide");$("#password").value="";setLoginMsg("Você saiu do painel.","success");});
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("button[data-page]");if(!b)return;document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("active",x===b));loadPage(b.dataset.page);});
+$("#refreshBtn").addEventListener("click",()=>loadPage(state.page));
+$("#search").addEventListener("input",()=>{state.pageNo=1;renderTable();});
+$("#period").addEventListener("change",()=>{state.pageNo=1;renderTable();});
+$("#exportBtn").addEventListener("click",exportCSV);
+function renderStats(items){
+ const cards=items.map(x=>`<div class="stat"><div class="stat-top"><span>${esc(x.label)}</span><span class="stat-icon">${x.icon}</span></div><strong>${esc(x.value)}</strong><small>${esc(x.note||"Dados do banco de dados")}</small></div>`).join("");
+ $("#stats").innerHTML=cards;$("#stats").classList.toggle("hide",!items.length);
+}
+async function query(table,select="*"){const {data,error}=await sb.from(table).select(select);if(error)throw error;return data||[];}
+async function loadPage(page){
+ state.page=page;state.pageNo=1;$("#search").value="";$("#period").value="all";
+ const m=meta[page]||meta.inicio;$("#pageTitle").textContent=m.title;$("#pageSubtitle").textContent=m.subtitle;$("#pageIcon").textContent=m.icon;
+ $("#tbody").innerHTML="";$("#thead").innerHTML="";$("#countText").textContent="Carregando...";$("#pager").innerHTML="";$("#empty").classList.add("hide");showNotice("");
+ try{
+  let stats=[],rows=[],cols=[],title="Registros",subtitle="Dados consultados diretamente no Supabase.";
+  if(page==="inicio"){
+   const [users,logs,groups,questions]=await Promise.all([query("User","UserID,Nome,Email,Registro"),query("Logs","LogID,UserID,data_login,data_logout,hora_login,hora_logout,nomeUsuario"),query("Grupos","GrupoID,NomeGrupo,InviteCode"),query("Questoes","QuestaoID,NomeQuestao,MateriaID,AnoEnem")]);
+   stats=[{label:"Usuários cadastrados",value:users.length,icon:"♙"},{label:"Grupos",value:groups.length,icon:"♧"},{label:"Questões",value:questions.length,icon:"▤"},{label:"Registros de acesso",value:logs.length,icon:"▣"}];
+   rows=logs.sort((a,b)=>String(b.data_login||"").localeCompare(String(a.data_login||""))||String(b.hora_login||"").localeCompare(String(a.hora_login||""))).slice(0,50).map(x=>({data:fmtDate(x.data_login),hora:x.hora_login||"—",usuario:x.nomeUsuario||`Usuário ${x.UserID}`,acao:x.data_logout?"Logout registrado":"Sessão aberta",detalhes:x.data_logout?`Saída: ${fmtDate(x.data_logout)} ${x.hora_logout||""}`:"Sem logout registrado",tipo:tag(x.data_logout?"Encerrada":"Em andamento",x.data_logout?"green":"yellow")}));
+   cols=[["data","Data"],["hora","Hora"],["usuario","Usuário"],["acao","Ação"],["detalhes","Detalhes"],["tipo","Situação"]];title="Acessos recentes";subtitle="Resumo e registros de acesso disponíveis no banco.";
+  } else if(page==="usuarios"){
+   const data=await query("User","UserID,Nome,Email,Registro,CidadeID,FotoPerfil");
+   stats=[{label:"Total de usuários",value:data.length,icon:"♙"}];
+   rows=data.map(x=>({id:x.UserID,nome:x.Nome||"Sem nome",email:x.Email||"—",registro:fmtDate(x.Registro),cidade:x.CidadeID??"Não informada",perfil:x.FotoPerfil?"Foto cadastrada":"Sem foto"}));
+   cols=[["id","ID"],["nome","Nome"],["email","E-mail"],["registro","Cadastro"],["cidade","CidadeID"],["perfil","Foto de perfil"]];title="Usuários cadastrados";subtitle="Consulta de perfis da tabela User.";
+  } else if(page==="questoes"){
+   const [qs,ms]=await Promise.all([query("Questoes","QuestaoID,NomeQuestao,MateriaID,TextoQuestao,Alternativas,Resposta,AnoEnem"),query("Materias","MateriaID,NomeMateria")]);
+   const materias=Object.fromEntries(ms.map(x=>[x.MateriaID,x.NomeMateria]));
+   stats=[{label:"Questões cadastradas",value:qs.length,icon:"▤"},{label:"Matérias",value:ms.length,icon:"▧"}];
+   rows=qs.map(x=>({id:x.QuestaoID,nome:x.NomeQuestao||"Questão sem título",materia:materias[x.MateriaID]||`ID ${x.MateriaID??"—"}`,ano:x.AnoEnem??"—",enunciado:x.TextoQuestao||"—",resposta:x.Resposta||"—"}));
+   cols=[["id","ID"],["nome","Questão"],["materia","Matéria"],["ano","Ano ENEM"],["enunciado","Enunciado"],["resposta","Resposta"]];title="Questões cadastradas";subtitle="Consulta das questões e das matérias relacionadas.";
+  } else if(page==="grupos"){
+   const [gs,links,users]=await Promise.all([query("Grupos","GrupoID,NomeGrupo,InviteCode"),query("GrupoUsuario","GrupoID,UserID"),query("User","UserID,Nome")]);
+   const counts={};links.forEach(x=>counts[x.GrupoID]=(counts[x.GrupoID]||0)+1);
+   stats=[{label:"Grupos cadastrados",value:gs.length,icon:"♧"},{label:"Vínculos usuário/grupo",value:links.length,icon:"♙"}];
+   rows=gs.map(x=>({id:x.GrupoID,nome:x.NomeGrupo||"Sem nome",convite:x.InviteCode||"—",participantes:counts[x.GrupoID]||0}));
+   cols=[["id","ID"],["nome","Nome do grupo"],["convite","Código de convite"],["participantes","Participantes"]];title="Grupos cadastrados";subtitle="Quantidade de participantes calculada a partir de GrupoUsuario.";
+  } else if(page==="logs"){
+   const [logs,users]=await Promise.all([query("Logs","LogID,UserID,data_login,data_logout,hora_login,hora_logout,nomeUsuario"),query("User","UserID,Nome,Email")]);
+   const byId=Object.fromEntries(users.map(u=>[u.UserID,u]));
+   stats=[{label:"Registros de acesso",value:logs.length,icon:"▣"},{label:"Sessões sem logout",value:logs.filter(x=>!x.data_logout).length,icon:"◷"}];
+   rows=logs.map(x=>({id:x.LogID,data:fmtDate(x.data_login),hora:x.hora_login||"—",usuario:x.nomeUsuario||byId[x.UserID]?.Nome||byId[x.UserID]?.Email||`Usuário ${x.UserID}`,login:fmtDate(x.data_login)+" "+(x.hora_login||""),logout:x.data_logout?fmtDate(x.data_logout)+" "+(x.hora_logout||""):"Em sessão",situacao:x.data_logout?tag("Encerrada","green"):tag("Em andamento","yellow")})).sort((a,b)=>b.id-a.id);
+   cols=[["id","LogID"],["usuario","Usuário"],["login","Login"],["logout","Logout"],["situacao","Situação"]];title="Histórico de acessos";subtitle="A tabela Logs atual registra login/logout; não há coluna de IP ou tipo de atividade no esquema informado.";
+  } else if(page==="rankings"){
+   const [progress,users,subjects]=await Promise.all([query("ProgressoUsuario","UserID,Acertou,MaterialID,QuestaoID"),query("User","UserID,Nome,Email"),query("Materias","MateriaID,NomeMateria")]);
+   const byUser={};progress.forEach(x=>{const k=x.UserID;if(!byUser[k])byUser[k]={total:0,correct:0};byUser[k].total++;if(x.Acertou===true)byUser[k].correct++;});
+   const userMap=Object.fromEntries(users.map(x=>[x.UserID,x]));
+   rows=Object.entries(byUser).map(([id,v])=>({id:Number(id),usuario:userMap[id]?.Nome||userMap[id]?.Email||`Usuário ${id}`,respondidas:v.total,acertos:v.correct,aproveitamento:v.total?Math.round(v.correct/v.total*100)+"%":"0%"})).sort((a,b)=>b.acertos-a.acertos||b.respondidas-a.respondidas);
+   stats=[{label:"Usuários com progresso",value:rows.length,icon:"♜"},{label:"Respostas registradas",value:progress.length,icon:"✓"},{label:"Matérias",value:subjects.length,icon:"▧"}];
+   cols=[["id","UserID"],["usuario","Usuário"],["respondidas","Respostas registradas"],["acertos","Acertos"],["aproveitamento","Aproveitamento"]];title="Ranking por acertos";subtitle="Classificação calculada a partir de ProgressoUsuario. Não equivale necessariamente à pontuação oficial do aplicativo.";
+  } else if(page==="configuracoes"){
+   stats=[];
+   rows=[{item:"Projeto Supabase",valor:new URL(SUPABASE_URL).host,status:tag("Configurado","green")},{item:"Autorização de administrador",valor:ADMIN_EMAILS.includes("aaa@gmail.com")?"Pendente: preencher ADMIN_EMAILS":"Lista de e-mails configurada",status:tag(ADMIN_EMAILS.includes("aaa@gmail.com")?"Pendente":"Configurado",ADMIN_EMAILS.includes("aaa@gmail.com")?"yellow":"green")},{item:"Segurança do banco",valor:"Confirmar RLS/políticas para acesso administrativo",status:tag("Verificar","yellow")},{item:"IP e tipo detalhado de atividade",valor:"Não existem nas colunas de Logs informadas",status:tag("Não disponível","purple")}];
+   cols=[["item","Configuração"],["valor","Detalhes"],["status","Estado"]];title="Configurações";subtitle="Estado da configuração deste painel.";
+  }
+  renderStats(stats);state.allRows=rows;state.columns=cols;$("#tableTitle").textContent=title;$("#tableSubtitle").textContent=subtitle;renderTable();
+ }catch(e){
+  renderStats([]);state.allRows=[];state.columns=[];$("#thead").innerHTML="";$("#tbody").innerHTML="";$("#empty").classList.remove("hide");$("#countText").textContent="Não foi possível carregar os dados.";
+  showNotice("Erro ao consultar o Supabase: "+(e.message||String(e))+". Verifique os nomes das tabelas/colunas e as políticas de acesso (RLS).");
+ }
+}
+function renderTable(){
+ const q=$("#search").value.trim().toLowerCase(),period=$("#period").value;
+ let rows=state.allRows.filter(r=>Object.values(r).some(v=>String(v??"").replace(/<[^>]*>/g,"").toLowerCase().includes(q)));
+ if(period!=="all" && ["logs","inicio"].includes(state.page)){
+  const days=Number(period),cut=new Date();cut.setDate(cut.getDate()-days);
+  rows=rows.filter(r=>{const raw=state.page==="logs"?r.login:r.data;const parts=String(raw||"").split(" ")[0].split("/");if(parts.length!==3)return true;const d=new Date(+parts[2],+parts[1]-1,+parts[0]);return d>=cut;});
+ }
+ const total=rows.length,pages=Math.max(1,Math.ceil(total/state.pageSize));state.pageNo=Math.min(state.pageNo,pages);
+ const start=(state.pageNo-1)*state.pageSize,shown=rows.slice(start,start+state.pageSize);
+ $("#thead").innerHTML="<tr>"+(state.columns||[]).map(c=>`<th>${esc(c[1])}</th>`).join("")+"</tr>";
+ $("#tbody").innerHTML=shown.map(r=>"<tr>"+state.columns.map(c=>`<td>${r[c[0]]===undefined?"—":(typeof r[c[0]]==="string"&&r[c[0]].includes("<span")?r[c[0]]:esc(r[c[0]]))}</td>`).join("")+"</tr>").join("");
+ $("#empty").classList.toggle("hide",shown.length>0);$("#countText").textContent=total?`Mostrando ${start+1}–${Math.min(start+shown.length,total)} de ${total} registros`:"0 registros";
+ $("#pager").innerHTML="";
+ for(let i=1;i<=Math.min(pages,5);i++){const b=document.createElement("button");b.textContent=i;b.className=i===state.pageNo?"active":"";b.onclick=()=>{state.pageNo=i;renderTable();};$("#pager").appendChild(b);}
+ if(pages>5){const s=document.createElement("span");s.textContent="…";s.style.padding="5px";$("#pager").appendChild(s);const b=document.createElement("button");b.textContent=pages;b.onclick=()=>{state.pageNo=pages;renderTable();};$("#pager").appendChild(b);}
+}
+function exportCSV(){
+ const cols=state.columns||[],q=$("#search").value.trim().toLowerCase();
+ const rows=state.allRows.filter(r=>Object.values(r).some(v=>String(v??"").replace(/<[^>]*>/g,"").toLowerCase().includes(q)));
+ const cell=v=>'"'+String(v??"").replace(/<[^>]*>/g,"").replace(/"/g,'""')+'"';
+ const csv=[cols.map(c=>cell(c[1])).join(";"),...rows.map(r=>cols.map(c=>cell(r[c[0]]??"")).join(";"))].join("\r\n");
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`enem-quest-${state.page}.csv`;a.click();URL.revokeObjectURL(url);
+}
+(async function init(){
+ const {data:{session}}=await sb.auth.getSession();
+ if(session){const email=(session.user?.email||"").toLowerCase();if(!ADMIN_EMAILS.includes("aaa@gmail.com")&&ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email)){state.session=session;$("#adminName").textContent=email;$("#loginView").classList.add("hide");$("#appView").classList.remove("hide");await loadPage("inicio");}else{await sb.auth.signOut();}}
+})();
+</script>
+</body>
+</html>
