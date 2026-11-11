@@ -42,8 +42,8 @@ main{width:100%;max-width:390px;margin:auto}
   transition:height .2s ease;
 }
 body[data-view="cadastro"] .hero{height:134px;padding-top:17px}
-body[data-view="home"] .hero,body[data-view="overall"] .hero,body[data-view="jornada"] .hero,body[data-view="questao"] .hero{height:86px;padding-top:18px}
-body[data-view="home"] .cap,body[data-view="overall"] .cap,body[data-view="jornada"] .cap,body[data-view="questao"] .cap{display:none}
+body[data-view="home"] .hero,body[data-view="overall"] .hero,body[data-view="ranking"] .hero,body[data-view="jornada"] .hero,body[data-view="questao"] .hero{height:86px;padding-top:18px}
+body[data-view="home"] .cap,body[data-view="overall"] .cap,body[data-view="ranking"] .cap,body[data-view="jornada"] .cap,body[data-view="questao"] .cap{display:none}
 .cap{width:66px;height:53px;display:block;margin:0 auto 4px;color:#fff}
 .hero h1{font-size:22px;line-height:1.15;letter-spacing:-.45px;margin:0;font-weight:800}
 .hero p{font-size:11px;line-height:1.4;margin:5px 0 0;color:rgba(255,255,255,.83)}
@@ -52,7 +52,7 @@ body[data-view="home"] .cap,body[data-view="overall"] .cap,body[data-view="jorna
   margin-top:-1px;padding:18px 20px 19px;
   min-height:240px;
 }
-#v-login,#v-cadastro,#v-home,#v-overall,#v-jornada,#v-questao{width:100%}
+#v-login,#v-cadastro,#v-home,#v-overall,#v-ranking,#v-jornada,#v-questao{width:100%}
 .hide{display:none!important}
 h2{font-size:17px;line-height:1.2;margin:0 0 5px;font-weight:750;color:#28366c}
 .intro{font-size:10px;line-height:1.45;color:var(--muted);margin:0 0 12px;max-width:250px}
@@ -148,12 +148,126 @@ input.bad{border-color:var(--danger)}
 .mt i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:13px;color:#fff;margin-bottom:7px}
 .mt b{display:block;font-size:11px;line-height:1.25;color:#28366c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mt small{display:block;font-size:9px;color:var(--muted);margin-top:2px}
-.empty{font-size:10px;color:var(--muted);padding:6px 0}
+.empty{font-size:10px;color:var(--muted);padding:6px 0;text-align:center;width:100%}
 .sh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .sh button{display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px 4px;font:inherit;font-size:10px;font-weight:650;color:#344477;cursor:pointer}
 .sh button i{width:30px;height:30px;border-radius:10px;background:#eef1ff;color:#4659d8;display:grid;place-items:center}
 .sh button i svg{width:17px;height:17px}
 .toast{margin-top:10px;min-height:14px;font-size:10px;text-align:center;color:#4659d8;font-weight:650}
+
+/* ===== Ajustes da tela inicial ===== */
+#mats.hs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  overflow:visible;
+  padding:2px 0 6px;
+  margin:0;
+}
+#mats .mt{
+  width:100%;
+  min-width:0;
+  max-width:none;
+}
+#v-home .sh{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+#v-home .sh button{
+  min-width:0;
+  padding:10px 3px;
+  font-size:9px;
+}
+
+/* A tela inicial acompanha o enquadramento responsivo do login */
+body[data-view="home"]{
+  align-items:stretch;
+  padding:0;
+}
+body[data-view="home"] main{
+  width:100%;
+  max-width:none;
+  min-height:100svh;
+  margin:0;
+}
+body[data-view="home"] .auth-shell{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-height:100svh;
+  border-radius:0;
+  border:0;
+  box-shadow:none;
+}
+body[data-view="home"] .hero{
+  flex:none;
+  height:86px;
+  padding:18px 22px 0;
+}
+body[data-view="home"] #v-home{
+  flex:1;
+  min-height:0;
+  padding:20px 25px max(24px, env(safe-area-inset-bottom));
+  border-radius:25px 25px 0 0;
+}
+@media(min-width:600px){
+  body[data-view="home"]{
+    align-items:center;
+    padding:28px 20px;
+  }
+  body[data-view="home"] main{
+    max-width:430px;
+    min-height:0;
+    margin:auto;
+  }
+  body[data-view="home"] .auth-shell{
+    min-height:min(780px, calc(100svh - 56px));
+    border:1px solid rgba(220,227,245,.85);
+    border-radius:27px;
+    box-shadow:0 12px 38px rgba(36,49,105,.13);
+  }
+  body[data-view="home"] #v-home{
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
+@media(max-width:380px){
+  #v-home .sh{gap:5px}
+  #v-home .sh button{font-size:8px;padding-left:1px;padding-right:1px}
+  #v-home .sh button i{width:27px;height:27px}
+}
+
+
+/* ===== Jornada e questão no mesmo enquadramento do início ===== */
+body[data-view="jornada"],body[data-view="questao"]{
+  align-items:stretch;padding:0;overflow-x:hidden;overflow-y:auto;
+}
+body[data-view="jornada"] main,body[data-view="questao"] main{
+  width:100%;max-width:none;min-height:100svh;margin:0;
+}
+body[data-view="jornada"] .auth-shell,body[data-view="questao"] .auth-shell{
+  display:flex;flex-direction:column;width:100%;min-height:100svh;height:auto;
+  border-radius:0;border:0;box-shadow:none;overflow:visible;
+}
+body[data-view="jornada"] .hero,body[data-view="questao"] .hero{
+  flex:none;height:86px;padding:18px 22px 0;
+}
+body[data-view="jornada"] #v-jornada,body[data-view="questao"] #v-questao{
+  flex:1;min-height:calc(100svh - 85px);padding:20px 25px max(24px,env(safe-area-inset-bottom));
+  border-radius:25px 25px 0 0;overflow:visible;
+}
+body[data-view="questao"] #v-questao{padding-bottom:max(32px,env(safe-area-inset-bottom))}
+body[data-view="questao"] .qcard,body[data-view="questao"] .ops{min-width:0}
+body[data-view="questao"] .qtxt,body[data-view="questao"] .op span{overflow-wrap:anywhere}
+@media(min-width:600px){
+  body[data-view="jornada"],body[data-view="questao"]{align-items:center;padding:28px 20px}
+  body[data-view="jornada"] main,body[data-view="questao"] main{max-width:430px;min-height:0;margin:auto}
+  body[data-view="jornada"] .auth-shell,body[data-view="questao"] .auth-shell{
+    min-height:min(780px,calc(100svh - 56px));border:1px solid rgba(220,227,245,.85);
+    border-radius:27px;box-shadow:0 12px 38px rgba(36,49,105,.13);overflow:hidden;
+  }
+  body[data-view="jornada"] #v-jornada,body[data-view="questao"] #v-questao{padding-left:24px;padding-right:24px}
+}
+@media(max-width:380px){body[data-view="jornada"] #v-jornada,body[data-view="questao"] #v-questao{padding-left:18px;padding-right:18px}}
 
 /* ===== Tela de Overall ===== */
 #v-overall{padding:16px 16px 18px}
@@ -175,30 +289,146 @@ input.bad{border-color:var(--danger)}
 .bar{height:6px;border-radius:99px;background:#edf0f8;margin-top:5px;overflow:hidden}
 .bar u{display:block;height:100%;border-radius:99px;text-decoration:none;transition:width .4s ease}
 
+/* ===== Overall: atalhos e enquadramento responsivo ===== */
+#v-overall .sh{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+#v-overall .sh button{
+  min-width:0;
+  padding:10px 3px;
+  font-size:9px;
+}
+body[data-view="overall"]{
+  align-items:stretch;
+  padding:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+body[data-view="overall"] main{
+  width:100%;
+  max-width:none;
+  min-height:100svh;
+  margin:0;
+}
+body[data-view="overall"] .auth-shell{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-height:100svh;
+  height:auto;
+  border-radius:0;
+  border:0;
+  box-shadow:none;
+  overflow:visible;
+}
+body[data-view="overall"] .hero{
+  flex:none;
+  height:86px;
+  padding:18px 22px 0;
+}
+body[data-view="overall"] #v-overall{
+  flex:1;
+  min-height:calc(100svh - 85px);
+  padding:20px 25px max(24px,env(safe-area-inset-bottom));
+  border-radius:25px 25px 0 0;
+  overflow:visible;
+}
+@media(min-width:600px){
+  body[data-view="overall"]{
+    align-items:center;
+    padding:28px 20px;
+  }
+  body[data-view="overall"] main{
+    max-width:430px;
+    min-height:0;
+    margin:auto;
+  }
+  body[data-view="overall"] .auth-shell{
+    min-height:min(780px,calc(100svh - 56px));
+    border:1px solid rgba(220,227,245,.85);
+    border-radius:27px;
+    box-shadow:0 12px 38px rgba(36,49,105,.13);
+    overflow:hidden;
+  }
+  body[data-view="overall"] #v-overall{
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
+@media(max-width:380px){
+  #v-overall .sh{gap:5px}
+  #v-overall .sh button{font-size:8px;padding-left:1px;padding-right:1px}
+  #v-overall .sh button i{width:27px;height:27px}
+}
+
+/* ===== Tela de Ranking ===== */
+#v-ranking{padding:16px 16px 18px}
+.tabs{display:flex;background:#f5f7ff;border-radius:12px;padding:4px;margin-bottom:16px;border:1px solid var(--line)}
+.tab{flex:1;border:none;background:transparent;padding:9px 0;border-radius:9px;font-size:11px;font-weight:700;color:#6b7bb8;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab.active{background:var(--blue2);color:#fff;box-shadow:0 3px 8px rgba(78,91,240,.18)}
+.rk-head{display:flex;padding:0 12px 8px;font-size:10px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:8px}
+.rk-head span:nth-child(1){width:30px;text-align:center}
+.rk-head span:nth-child(2){flex:1;padding-left:12px}
+.rk-head span:nth-child(3){text-align:right}
+.rk-list{display:flex;flex-direction:column;gap:4px;min-height:150px}
+.rk-row{display:flex;align-items:center;padding:8px 12px;border-radius:13px;background:#fff;border:1px solid transparent}
+.rk-row.me{background:#f5f7ff;border-color:#cfd7fb}
+.rk-pos{width:28px;height:28px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#6b7bb8;border-radius:50%;background:#f5f7ff;flex:none}
+.rk-pos.gold{background:#fff8db;color:#d4a017}
+.rk-pos.silver{background:#f0f2f5;color:#7a869a}
+.rk-pos.bronze{background:#fdf2ec;color:#c97a55}
+.rk-user{flex:1;display:flex;align-items:center;gap:10px;padding-left:12px;font-size:12px;font-weight:700;color:#28366c}
+.rk-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4c5cf0,#7b86ff);color:#fff;display:grid;place-items:center;font-weight:750;font-size:12px;flex:none;text-transform:uppercase}
+.rk-pts{font-size:11px;font-weight:700;color:#344477;flex:none}
+.rk-row.me .rk-pts{color:#4659d8}
+
 /* ===== Jornada ===== */
 #v-jornada,#v-questao{padding:16px 16px 18px}
-.jtabs{padding:2px 16px 8px;margin:0 -16px}
-.jt{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:#fff;color:#344477;border-radius:99px;padding:7px 12px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
-.jt small{font-weight:600;color:var(--muted);margin-left:6px;font-size:9px}
-.jt.on{background:linear-gradient(105deg,#4c5cf0,#4a55e2);border-color:transparent;color:#fff}
-.jt.on small{color:rgba(255,255,255,.82)}
+.jtabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:2px 0 8px;margin:0}
+.jt{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:5px;border:1px solid var(--line);background:#fff;color:#344477;border-radius:13px;padding:11px;text-align:left;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.jt small{font-weight:650;color:var(--muted);font-size:9px}
+.jt strong{font-size:10px;color:#4659d8;font-weight:750}
+.jt.on{background:linear-gradient(145deg,#f1f3ff,#fff);border-color:var(--jcolor,#4c5cf0);box-shadow:inset 0 0 0 1px var(--jcolor,#4c5cf0)}
+.jt.on strong{color:var(--jcolor,#4659d8)}
 .jinfo{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:6px 0}
 .jinfo b{font-size:15px;color:#28366c;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .jinfo span{font-size:10px;color:var(--muted);font-weight:650;flex:none}
-#jbar{background:linear-gradient(90deg,#4c5cf0,#7b86ff)}
+#jbar{background:linear-gradient(90deg,var(--jcolor,#4c5cf0),color-mix(in srgb,var(--jcolor,#4c5cf0) 55%,#fff))}
 .jfim{margin-top:12px;padding:12px;border-radius:13px;background:#eaf8f1;color:var(--success);text-align:center;font-size:11px;line-height:1.45}
 .jfim b{display:block;font-size:14px}
 .jpath{position:relative;margin-top:10px}
 .jpath>svg{position:absolute;left:0;top:0;width:100%}
 .jpath>svg path{fill:none;stroke-linecap:round;vector-effect:non-scaling-stroke}
 .jpath>svg .trk{stroke:#e3e8f7;stroke-width:8}
-.jpath>svg .dn{stroke:#12a37f;stroke-width:8}
+.jpath>svg .dn{stroke:var(--jcolor,#12a37f);stroke-width:8}
 .jn{position:absolute;width:48px;height:48px;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;font:inherit;font-weight:800;font-size:15px;border:0;padding:0}
 .jn svg{width:22px;height:22px;stroke-width:2.6}
-.jn.done{background:#12a37f;color:#fff;box-shadow:0 4px 0 #0c7d5f}
-.jn.cur{background:linear-gradient(145deg,#4c5cf0,#6a76ff);color:#fff;box-shadow:0 4px 0 #3340c4;cursor:pointer;animation:jpulse 1.7s infinite}
+.jn.done{background:var(--jcolor,#12a37f);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--jcolor,#12a37f) 75%,#17234f)}
+.jn.cur{background:linear-gradient(145deg,var(--jcolor,#4c5cf0),color-mix(in srgb,var(--jcolor,#4c5cf0) 65%,#fff));color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--jcolor,#4c5cf0) 75%,#17234f);cursor:pointer;animation:jpulse 1.7s infinite}
 .jn.lock{background:#e9edf8;color:#9aa5c3;box-shadow:0 4px 0 #d3daee}
 .jtag{position:absolute;transform:translate(-50%,-46px);background:#28366c;color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:7px;white-space:nowrap;pointer-events:none}
+/* Identidade visual de cada jornada */
+.jtema{
+  --jcolor:#4c5cf0;--jtint:#f1f3ff;
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  overflow:hidden;margin:12px 0 10px;padding:13px 14px;border:1px solid color-mix(in srgb,var(--jcolor) 20%,#fff);
+  border-radius:16px;background:linear-gradient(115deg,var(--jtint),#fff 78%);
+}
+.jtema::after{content:"";position:absolute;width:118px;height:118px;right:-35px;top:-55px;border-radius:50%;background:var(--jcolor);opacity:.07}
+.jtema-copy{position:relative;z-index:1;min-width:0}
+.jtema-kicker{display:block;margin-bottom:4px;color:var(--jcolor);font-size:8px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase}
+.jtema-title{display:block;color:#28366c;font-size:13px;font-weight:850;line-height:1.2}
+.jtema-desc{display:block;margin-top:4px;color:#7883a6;font-size:9px;line-height:1.35}
+.jtema-art{position:relative;z-index:1;display:flex;align-items:center;gap:5px;flex:none}
+.jtema-art span{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#fff;box-shadow:0 3px 10px rgba(38,52,95,.07);font-size:19px}
+.jtema-art span:nth-child(2){transform:translateY(-6px) rotate(7deg)}
+.jtema-art span:nth-child(3){transform:translateY(4px) rotate(-7deg)}
+.jpath{isolation:isolate}
+.jmotif{position:absolute;z-index:0;pointer-events:none;opacity:.17;font-size:31px;line-height:1;filter:saturate(.8)}
+.jn{z-index:2}
+.jtag{z-index:3}
+@media(max-width:360px){.jtema{padding:11px 10px;gap:7px}.jtema-art{gap:3px}.jtema-art span{width:29px;height:29px;font-size:16px}.jtema-desc{max-width:180px}}
+
 @keyframes jpulse{0%{box-shadow:0 4px 0 #3340c4,0 0 0 0 rgba(76,92,240,.45)}70%{box-shadow:0 4px 0 #3340c4,0 0 0 14px rgba(76,92,240,0)}100%{box-shadow:0 4px 0 #3340c4,0 0 0 0 rgba(76,92,240,0)}}
 @media (prefers-reduced-motion:reduce){.jn.cur{animation:none}}
 .qmeta{font-size:10px;color:var(--muted);font-weight:650;margin:2px 0 8px}
@@ -230,10 +460,281 @@ input.bad{border-color:var(--danger)}
   body{align-items:flex-start;padding-top:12px;padding-bottom:12px}
   .hero{height:145px;padding-top:17px}
   body[data-view="cadastro"] .hero{height:115px;padding-top:10px}
-  body[data-view="home"] .hero,body[data-view="overall"] .hero,body[data-view="jornada"] .hero,body[data-view="questao"] .hero{height:76px;padding-top:12px}
+  body[data-view="home"] .hero,body[data-view="overall"] .hero,body[data-view="ranking"] .hero,body[data-view="jornada"] .hero,body[data-view="questao"] .hero{height:76px;padding-top:12px}
   .panel{padding-top:13px;padding-bottom:13px}
   #v-cadastro .field{margin-bottom:5px}
 }
+
+/* ===== Ajuste mobile-first: login e cadastro em formato retrato ===== */
+body[data-view="login"],
+body[data-view="cadastro"]{
+  align-items:stretch;
+  padding:0;
+}
+body[data-view="login"] main,
+body[data-view="cadastro"] main{
+  width:100%;
+  max-width:none;
+  min-height:100svh;
+  margin:0;
+}
+body[data-view="login"] .auth-shell,
+body[data-view="cadastro"] .auth-shell{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-height:100svh;
+  border-radius:0;
+  border:0;
+  box-shadow:none;
+}
+body[data-view="login"] .hero{
+  height:clamp(205px, 29svh, 255px);
+  flex:none;
+  justify-content:center;
+  padding:24px 22px 30px;
+}
+body[data-view="cadastro"] .hero{
+  height:clamp(160px, 23svh, 205px);
+  flex:none;
+  justify-content:center;
+  padding:18px 22px 24px;
+}
+body[data-view="login"] .cap,
+body[data-view="cadastro"] .cap{
+  width:78px;
+  height:62px;
+  margin-bottom:10px;
+}
+body[data-view="login"] .hero h1,
+body[data-view="cadastro"] .hero h1{
+  font-size:27px;
+}
+body[data-view="login"] .hero p,
+body[data-view="cadastro"] .hero p{
+  font-size:13px;
+  margin-top:8px;
+}
+body[data-view="login"] .panel,
+body[data-view="cadastro"] .panel{
+  flex:1;
+  min-height:0;
+  padding:30px 25px max(30px, env(safe-area-inset-bottom));
+  border-radius:25px 25px 0 0;
+}
+body[data-view="login"] #v-login .panel,
+body[data-view="cadastro"] #v-cadastro .panel{
+  padding-top:30px;
+}
+body[data-view="login"] h2,
+body[data-view="cadastro"] h2{
+  font-size:22px;
+  margin-bottom:8px;
+}
+body[data-view="login"] .intro,
+body[data-view="cadastro"] .intro{
+  max-width:340px;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+body[data-view="login"] .field,
+body[data-view="cadastro"] .field,
+body[data-view="login"] #v-login .field,
+body[data-view="cadastro"] #v-cadastro .field{
+  margin-bottom:17px;
+}
+body[data-view="login"] label,
+body[data-view="cadastro"] label{
+  font-size:13px;
+  margin-bottom:7px;
+}
+body[data-view="login"] input,
+body[data-view="cadastro"] input{
+  height:49px;
+  border-radius:12px;
+  padding-left:43px;
+  font-size:14px;
+}
+body[data-view="login"] .input-icon,
+body[data-view="cadastro"] .input-icon{
+  left:13px;
+  width:17px;
+  height:17px;
+}
+body[data-view="login"] .eye,
+body[data-view="cadastro"] .eye{
+  right:7px;
+  top:7px;
+  width:35px;
+  height:35px;
+}
+body[data-view="login"] .eye svg,
+body[data-view="cadastro"] .eye svg{
+  width:19px;
+  height:19px;
+}
+body[data-view="login"] .err,
+body[data-view="cadastro"] .err{
+  font-size:11px;
+  margin-top:4px;
+}
+body[data-view="login"] .btn,
+body[data-view="cadastro"] .btn{
+  height:50px;
+  border-radius:12px;
+  font-size:14px;
+}
+body[data-view="login"] .btn.p,
+body[data-view="cadastro"] .btn.p{
+  margin-top:12px;
+}
+body[data-view="login"] .btn.g,
+body[data-view="cadastro"] .btn.g{
+  height:49px;
+  margin-top:12px;
+}
+body[data-view="login"] .google-mark,
+body[data-view="cadastro"] .google-mark{
+  width:19px;
+  height:19px;
+}
+body[data-view="login"] .or,
+body[data-view="cadastro"] .or{
+  gap:13px;
+  font-size:12px;
+  margin-top:17px;
+}
+body[data-view="login"] .alt,
+body[data-view="cadastro"] .alt{
+  font-size:13px;
+  margin-top:20px;
+}
+body[data-view="cadastro"] #v-cadastro .btn.p{
+  margin-top:8px;
+}
+body[data-view="cadastro"] #v-cadastro .btn.g{
+  margin-top:10px;
+}
+@media(min-width:600px){
+  body[data-view="login"],
+  body[data-view="cadastro"]{
+    align-items:center;
+    padding:28px 20px;
+  }
+  body[data-view="login"] main,
+  body[data-view="cadastro"] main{
+    max-width:430px;
+    min-height:0;
+    margin:auto;
+  }
+  body[data-view="login"] .auth-shell,
+  body[data-view="cadastro"] .auth-shell{
+    min-height:min(780px, calc(100svh - 56px));
+    border:1px solid rgba(220,227,245,.85);
+    border-radius:27px;
+    box-shadow:0 12px 38px rgba(36,49,105,.13);
+  }
+  body[data-view="login"] .hero{height:245px}
+  body[data-view="cadastro"] .hero{height:195px}
+  body[data-view="login"] .panel,
+  body[data-view="cadastro"] .panel{
+    padding-left:30px;
+    padding-right:30px;
+  }
+}
+@media(max-height:700px){
+  body[data-view="login"] .hero{height:190px}
+  body[data-view="cadastro"] .hero{height:145px}
+  body[data-view="login"] .panel,
+  body[data-view="cadastro"] .panel{
+    padding-top:22px;
+    padding-bottom:max(22px, env(safe-area-inset-bottom));
+  }
+  body[data-view="login"] .field,
+  body[data-view="cadastro"] .field,
+  body[data-view="login"] #v-login .field,
+  body[data-view="cadastro"] #v-cadastro .field{
+    margin-bottom:12px;
+  }
+}
+
+/* ===== Responsividade da tela de Ranking ===== */
+body[data-view="ranking"]{
+  align-items:stretch;
+  padding:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+body[data-view="ranking"] main{
+  width:100%;
+  max-width:none;
+  min-height:100svh;
+  margin:0;
+}
+
+body[data-view="ranking"] .auth-shell{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-height:100svh;
+  height:auto;
+  border-radius:0;
+  border:0;
+  box-shadow:none;
+  overflow:visible;
+}
+
+body[data-view="ranking"] .hero{
+  flex:none;
+  height:86px;
+  padding:18px 22px 0;
+}
+
+body[data-view="ranking"] #v-ranking{
+  flex:1;
+  min-height:calc(100svh - 85px);
+  padding:20px 25px max(24px, env(safe-area-inset-bottom));
+  border-radius:25px 25px 0 0;
+  overflow:visible;
+}
+
+#v-ranking .sh{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+#v-ranking .sh button{
+  min-width:0;
+  padding:10px 3px;
+  font-size:9px;
+}
+
+@media(min-width:600px){
+  body[data-view="ranking"]{
+    align-items:center;
+    padding:28px 20px;
+  }
+
+  body[data-view="ranking"] main{
+    max-width:430px;
+    min-height:0;
+    margin:auto;
+  }
+
+  body[data-view="ranking"] .auth-shell{
+    min-height:min(780px,calc(100svh - 56px));
+    border:1px solid rgba(220,227,245,.85);
+    border-radius:27px;
+    overflow:hidden;
+  }
+
+  body[data-view="ranking"] #v-ranking{
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -364,8 +865,6 @@ input.bad{border-color:var(--danger)}
       <button type="button" data-go="Matérias e fases"><i data-ic="book"></i>Estudar</button>
       <button type="button" data-go="Ranking"><i data-ic="trophy"></i>Ranking</button>
       <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
-      <button type="button" data-go="Ofensiva diária"><i data-ic="calendar"></i>Ofensiva</button>
-      <button type="button" data-go="Overall"><i data-ic="star"></i>Overall</button>
       <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
     </div>
     <div class="toast" id="toast" role="status"></div>
@@ -395,11 +894,46 @@ input.bad{border-color:var(--danger)}
       <button type="button" data-go="Início"><i data-ic="home"></i>Início</button>
       <button type="button" data-go="Matérias e fases"><i data-ic="book"></i>Estudar</button>
       <button type="button" data-go="Ranking"><i data-ic="trophy"></i>Ranking</button>
-      <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
-      <button type="button" data-go="Ofensiva diária"><i data-ic="calendar"></i>Ofensiva</button>
       <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
     </div>
     <div class="toast" id="toast2" role="status"></div>
+  </section>
+
+  <!-- ===== Tela de Ranking ===== -->
+  <section id="v-ranking" class="panel hide">
+    <div class="back">
+      <button id="back-ranking" type="button" aria-label="Voltar" title="Voltar" data-ic="back"></button>
+      <h2>Rankings</h2>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-rk="geral" type="button">Geral (Overall)</button>
+      <button class="tab" data-rk="materias" type="button">Por Matéria</button>
+    </div>
+
+    <!-- Filtro de matérias (escondido por padrão na aba Geral) -->
+    <div id="rk-filters" class="hide" style="margin-bottom:16px;">
+      <label for="rk-materia-select" style="font-size:10px; color:var(--muted); margin-bottom:4px; display:block;">Escolha a matéria:</label>
+      <select id="rk-materia-select" style="width:100%; height:34px; border-radius:9px; border:1px solid var(--line); background:#fff; color:#28366c; padding:0 10px; font-size:11px; outline:none;">
+        <option value="">Carregando matérias...</option>
+      </select>
+    </div>
+
+    <div id="rkmsg" class="msg" role="alert"></div>
+
+    <div class="rk-list" id="rk-list">
+      <div class="rk-head"><span>#</span><span>Usuário</span><span>Pontos</span></div>
+      <span class="empty" style="padding:20px 0;">Carregando...</span>
+    </div>
+
+    <div class="sec-t">Atalhos</div>
+    <div class="sh">
+      <button type="button" data-go="Início"><i data-ic="home"></i>Início</button>
+      <button type="button" data-go="Matérias e fases"><i data-ic="book"></i>Estudar</button>
+      <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
+      <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
+    </div>
+    <div class="toast" id="toast4" role="status"></div>
   </section>
 
   <!-- ===== Jornada (matérias + caminho de fases) ===== -->
@@ -420,15 +954,14 @@ input.bad{border-color:var(--danger)}
       <button class="btn p" id="jreset" type="button">Jogar novamente</button>
     </div>
 
+    <div class="jtema" id="jtema" aria-live="polite"></div>
     <div class="jpath" id="jpath"></div>
 
     <div class="sec-t">Atalhos</div>
-    <div class="sh">
+    <div class="sh" style="grid-template-columns:repeat(4,minmax(0,1fr))">
       <button type="button" data-go="Início"><i data-ic="home"></i>Início</button>
-      <button type="button" data-go="Overall"><i data-ic="star"></i>Overall</button>
       <button type="button" data-go="Ranking"><i data-ic="trophy"></i>Ranking</button>
       <button type="button" data-go="Grupos e desafios"><i data-ic="users"></i>Grupos</button>
-      <button type="button" data-go="Ofensiva diária"><i data-ic="calendar"></i>Ofensiva</button>
       <button type="button" data-go="Perfil"><i data-ic="user"></i>Perfil</button>
     </div>
     <div class="toast" id="toast3" role="status"></div>
@@ -522,6 +1055,22 @@ const PainelService = {
     return data;
   }
 };
+/* Ranking: conectado às funções do banco */
+const RankingService = {
+  async geral(){
+    const { data, error } = await sb.rpc("ranking_geral");
+    if(error) throw error; return data;
+  },
+  async materias(materiaId){
+    const { data, error } = await sb.rpc("ranking_materias", { p_materia_id: materiaId });
+    if(error) throw error; return data;
+  },
+  async listarMaterias(){
+    /* Puxa as matérias direto da tabela para popular o select */
+    const { data, error } = await sb.from("Materias").select("MateriaID, NomeMateria").order("MateriaID");
+    if(error) throw error; return data;
+  }
+};
 
 /* ===== UI base ===== */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -534,7 +1083,7 @@ function traduzir(e){
   if(/EMAIL_JA_CADASTRADO/.test(m)) return "Este e-mail já está cadastrado.";
   if(/SEM_SESSAO_GOOGLE/.test(m)) return "Não foi possível confirmar sua conta Google. Tente novamente.";
   if(/provider is not enabled|Unsupported provider/i.test(m)) return "Login com Google não está ativado no Supabase.";
-  if(/could not find the function|schema cache/i.test(m)) return "Funções SQL não encontradas. Rode o SQL no Supabase.";
+  if(/could not find the function|schema cache/i.test(m)) return "Funções SQL não encontradas. Rode o SQL no Supabase (verifique os nomes dos RPCs).";
   if(/QUESTAO_INVALIDA/.test(m)) return "Esta não é a questão atual da sua jornada. Volte ao mapa e tente de novo.";
   if(/SEM_QUESTAO/.test(m)) return "Não há questão disponível nesta fase.";
   if(/MATERIA_INVALIDA/.test(m)) return "Matéria não encontrada.";
@@ -542,7 +1091,7 @@ function traduzir(e){
   return m;
 }
 
-/* ===== Ícones do painel ===== */
+/* ===== Ícones ===== */
 const ICONS = {
   logout:'<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/>',
   flame:'<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.2 1 2 2 2 0-3-1-5 1-8Z"/>',
@@ -569,9 +1118,10 @@ const CORES = ["#4c5cf0","#e8730c","#12a37f","#c2417d","#7b4fd6","#0d8bbf","#c99
 const fmt = n => Number(n || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 let painelTok = 0, destinoCont = null, toastTimer = null, painelChave = null;
 
-/* Ponto único para ligar as próximas telas (Sprints 4 a 6) */
+/* Ponto único de navegação entre telas */
 function irPara(nome, materia){
   if(nome === "Overall"){ location.hash = "overall"; return; }
+  if(nome === "Ranking"){ location.hash = "ranking"; return; }
   if(nome === "Início"){ location.hash = ""; return; }
   if(nome === "Matérias e fases"){ location.hash = "jornada"; return; }
   if(materia){ escolherMateria(materia.id); location.hash = "jornada"; return; }
@@ -601,7 +1151,7 @@ function renderOverall(d){
   }
   const max = Math.max(1, ...mats.map(m => Number(m.pontos) || 0));
   mats.forEach((m, i) => {
-    const cor = CORES[i % CORES.length], v = Number(m.pontos) || 0;
+    const cor = temaDaMateria(m.nome, i).cor, v = Number(m.pontos) || 0;
     const row = document.createElement("div"); row.className = "pr";
     const ic = document.createElement("i"); ic.textContent = (m.nome || "?").trim().charAt(0).toUpperCase(); ic.style.background = cor;
     const col = document.createElement("div");
@@ -660,6 +1210,178 @@ $$("[data-go]").forEach(b => b.onclick = () => irPara(b.dataset.go));
 $("#ovbtn").onclick = () => irPara("Overall");
 $("#back").onclick = () => irPara("Início");
 
+/* ===== Ranking: abas e carregamento ===== */
+
+/* ===== Ranking: abas e carregamento ===== */
+let materiasCarregadas = [], rkTok = 0;
+let rkDados = [], rkVisiveis = 10, rkTipoAtual = "geral";
+
+function rkHead(){
+  const h = document.createElement("div"); h.className = "rk-head";
+  ["#", "Usuário", "Pontos"].forEach(t => {
+    const s = document.createElement("span");
+    s.textContent = t;
+    h.appendChild(s);
+  });
+  return h;
+}
+
+function rkEmpty(t){
+  const e = document.createElement("span");
+  e.className = "empty";
+  e.style.padding = "20px 0";
+  e.textContent = t;
+  return e;
+}
+
+function renderRanking(){
+  const s = Sessao.get();
+  const box = $("#rk-list");
+
+  box.textContent = "";
+  box.appendChild(rkHead());
+
+  if(!rkDados || !rkDados.length){
+    box.appendChild(rkEmpty("Nenhum dado encontrado no ranking."));
+    return;
+  }
+
+  const limite = Math.min(rkVisiveis, rkDados.length);
+
+  rkDados.slice(0, limite).forEach((r, i) => {
+    const pos = i + 1;
+    const ehVoce = !!s && s.userId === r.user_id;
+
+    let badge = "rk-pos";
+    if(pos === 1) badge += " gold";
+    else if(pos === 2) badge += " silver";
+    else if(pos === 3) badge += " bronze";
+
+    const row = document.createElement("div");
+    row.className = "rk-row" + (ehVoce ? " me" : "");
+
+    const p = document.createElement("div");
+    p.className = badge;
+    p.textContent = pos + "º";
+
+    const u = document.createElement("div");
+    u.className = "rk-user";
+
+    const av = document.createElement("div");
+    av.className = "rk-av";
+    av.textContent = (r.nome || r.email || "?").trim().charAt(0);
+    av.style.background = CORES[i % CORES.length];
+
+    u.append(
+      av,
+      document.createTextNode(ehVoce ? "Você" : (r.nome || "Usuário " + pos))
+    );
+
+    const pts = document.createElement("div");
+    pts.className = "rk-pts";
+    pts.textContent = rkTipoAtual === "geral"
+      ? fmt(r.pontos) + " ovr"
+      : r.pontos + " pts";
+
+    row.append(p, u, pts);
+    box.appendChild(row);
+  });
+
+  if(rkVisiveis < rkDados.length){
+    const carregar = document.createElement("button");
+    carregar.type = "button";
+    carregar.className = "btn p";
+    carregar.textContent = "Carregar mais";
+    carregar.style.marginTop = "12px";
+
+    carregar.onclick = () => {
+      rkVisiveis += 10;
+      renderRanking();
+    };
+
+    box.appendChild(carregar);
+  }
+}
+
+async function carregarRanking(tipo){
+  const s = Sessao.get();
+  const tok = ++rkTok;
+  const box = $("#rk-list");
+  const filterBox = $("#rk-filters");
+  const selectMateria = $("#rk-materia-select");
+
+  rkTipoAtual = tipo;
+  rkDados = [];
+  rkVisiveis = 10;
+
+  msg("rkmsg", "");
+  box.textContent = "";
+  box.append(rkHead(), rkEmpty("Buscando dados no servidor..."));
+
+  try{
+    let data = [];
+
+    if(tipo === "geral"){
+      filterBox.classList.add("hide");
+      data = await RankingService.geral();
+    } else {
+      filterBox.classList.remove("hide");
+
+      if(materiasCarregadas.length === 0){
+        const lista = await RankingService.listarMaterias();
+        if(tok !== rkTok) return;
+
+        materiasCarregadas = lista || [];
+        selectMateria.textContent = "";
+
+        materiasCarregadas.forEach(m => {
+          const o = document.createElement("option");
+          o.value = m.MateriaID;
+          o.textContent = m.NomeMateria;
+          selectMateria.appendChild(o);
+        });
+      }
+
+      const matId = parseInt(selectMateria.value);
+
+      if(!matId){
+        box.textContent = "";
+        box.appendChild(rkEmpty("Nenhuma matéria selecionada ou cadastrada."));
+        return;
+      }
+
+      data = await RankingService.materias(matId);
+    }
+
+    if(tok !== rkTok) return;
+
+    rkDados = data || [];
+    renderRanking();
+
+  }catch(e){
+    if(tok !== rkTok) return;
+
+    console.error(e);
+    box.textContent = "";
+    box.appendChild(rkHead());
+    msg("rkmsg", "Falha ao carregar ranking: " + traduzir(e), "e");
+  }
+}
+
+$$("#v-ranking .tab").forEach(tab => {
+  tab.onclick = () => {
+    $$("#v-ranking .tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    carregarRanking(tab.dataset.rk);
+  };
+});
+
+$("#rk-materia-select").onchange = () => {
+  carregarRanking("materias");
+};
+
+$("#back-ranking").onclick = () => irPara("Início");
+
 /* ===== Jornada: caminho de fases por matéria ===== */
 const JornadaService = {
   async _rpc(fn, args){ const { data, error } = await sb.rpc(fn, args); if(error) throw error; return data; },
@@ -691,54 +1413,105 @@ function novaImg(url, classe){
   if(classe) im.className = classe; im.onerror = () => im.remove(); return im;
 }
 
+const TEMAS_JORNADA = [
+  { key:"natureza", match:["ciências da natureza","ciencias da natureza","natureza","biologia","física","fisica","química","quimica"],
+    titulo:"Ciências da Natureza", descricao:"Explore a vida, a matéria e os fenômenos do universo.", cor:"#16866a", fundo:"#eaf7f1", simbolos:["🔭","🦠","🪐"], motivos:["🧬","⚛️","🌿","🔬"] },
+  { key:"matematica", match:["matemática","matematica","matemáticas","matematicas"],
+    titulo:"Matemática", descricao:"Conecte números, formas, padrões e raciocínio.", cor:"#6554c0", fundo:"#f0edff", simbolos:["π","📐","🧭"], motivos:["∑","△","∞","√"] },
+  { key:"linguagens", match:["linguagens","português","portugues","literatura","língua","lingua","inglês","ingles","espanhol"],
+    titulo:"Linguagens", descricao:"Percorra palavras, narrativas, arte e comunicação.", cor:"#bd4e83", fundo:"#fff0f6", simbolos:["📚","✒️","💬"], motivos:["✍️","📖","❝","🎭"] },
+  { key:"humanas", match:["ciências humanas","ciencias humanas","humanas","história","historia","geografia","filosofia","sociologia"],
+    titulo:"Ciências Humanas", descricao:"Investigue sociedades, culturas, ideias e épocas.", cor:"#ad7b29", fundo:"#fbf4e7", simbolos:["🏛️","🗿","📜"], motivos:["⚱️","🏺","⌛","🌍"] }
+];
+function temaDaMateria(nome, indice=0){
+  const normal = String(nome || "").toLocaleLowerCase("pt-BR");
+  const tema = TEMAS_JORNADA.find(t => t.match.some(p => normal.includes(p)));
+  if(tema) return tema;
+  return {key:"geral",titulo:nome || "Jornada",descricao:"Avance fase por fase e construa seu caminho.",cor:CORES[indice % CORES.length],fundo:"#f1f3ff",simbolos:["⭐","🧩","🚀"],motivos:["✦","✧","✦","✧"]};
+}
+function renderTemaJornada(nome, indice){
+  const tema = temaDaMateria(nome, indice), el = $("#jtema");
+  el.style.setProperty("--jcolor", tema.cor); el.style.setProperty("--jtint", tema.fundo);
+  el.dataset.theme = tema.key; el.textContent = "";
+  const copy = document.createElement("div"); copy.className = "jtema-copy";
+  const kicker = document.createElement("span"); kicker.className = "jtema-kicker"; kicker.textContent = "SUA TRILHA DE APRENDIZADO";
+  const title = document.createElement("strong"); title.className = "jtema-title"; title.textContent = tema.titulo;
+  const desc = document.createElement("span"); desc.className = "jtema-desc"; desc.textContent = tema.descricao;
+  copy.append(kicker,title,desc);
+  const art = document.createElement("div"); art.className = "jtema-art"; art.setAttribute("aria-hidden","true");
+  tema.simbolos.forEach(simbolo => { const item = document.createElement("span"); item.textContent = simbolo; art.appendChild(item); });
+  el.append(copy,art);
+  return tema;
+}
+
 function renderTabs(){
   const box = $("#jtabs"); box.textContent = "";
   if(!jMats.length){
     const e = document.createElement("span"); e.className = "empty"; e.textContent = "Nenhuma matéria cadastrada ainda."; box.appendChild(e); return;
   }
-  jMats.forEach(m => {
+  jMats.forEach((m, i) => {
     const b = document.createElement("button"); b.type = "button"; b.className = "jt" + (m.id === jSel ? " on" : "");
-    b.append(document.createTextNode(m.nome));
-    const sm = document.createElement("small"); sm.textContent = Math.min(m.posicao, m.total) + "/" + m.total; b.appendChild(sm);
+    b.style.setProperty("--jcolor", temaDaMateria(m.nome, i).cor);
+    const nome = document.createElement("span"); nome.textContent = m.nome;
+    const sm = document.createElement("small"); sm.textContent = Math.min(m.posicao, m.total) + "/" + m.total + " fases concluídas";
+    const ac = document.createElement("strong"); ac.textContent = m.id === jSel ? "Jornada selecionada ✓" : "Acessar jornada →";
+    b.append(nome, sm, ac);
     b.onclick = () => selecionarMateria(m.id); box.appendChild(b);
   });
 }
-
 function renderCaminho(d){
   const n = Number(d.total) || 0, pos = Math.min(Number(d.posicao) || 0, n);
+  const matIndex = Math.max(0, jMats.findIndex(x => x.id === jSel));
+  const tema = renderTemaJornada(d.materia.nome, matIndex);
+  const cor = tema.cor;
+  const box = $("#jpath"); box.style.setProperty("--jcolor", cor); $("#jbar").style.setProperty("--jcolor", cor);
   $("#jnome").textContent = d.materia.nome;
   $("#jprog").textContent = pos + " de " + n + (n === 1 ? " fase" : " fases");
   $("#jbar").style.width = (n ? pos / n * 100 : 0) + "%";
   $("#jfim").classList.toggle("hide", !(n > 0 && pos >= n));
-  const box = $("#jpath"); box.textContent = ""; box.style.height = "auto";
+  box.textContent = ""; box.style.height = "auto";
   if(!n){
     const e = document.createElement("span"); e.className = "empty"; e.textContent = "Esta matéria ainda não tem questões cadastradas."; box.appendChild(e); return;
   }
-  const GAP = 78, TOP = 40, XS = [50, 76, 50, 24], H = TOP * 2 + (n - 1) * GAP;
-  const X = i => XS[i % 4], Y = i => TOP + i * GAP, last = Math.min(pos, n - 1);
+  /* Janela móvel de até 10 fases: mantém a fase atual visível e evita um mapa enorme. */
+  const totalVisiveis = Math.min(10, n);
+  let inicio = Math.max(0, pos - 4);
+  inicio = Math.min(inicio, Math.max(0, n - totalVisiveis));
+  const fim = Math.min(n, inicio + totalVisiveis);
+  const qtd = fim - inicio;
+  const GAP = 78, TOP = 40, XS = [50, 76, 50, 24], H = TOP * 2 + (qtd - 1) * GAP;
+  const X = i => XS[i % 4], Y = i => TOP + i * GAP;
   let all = "M" + X(0) + " " + Y(0), done = all;
-  for(let i = 1; i < n; i++){
+  for(let i = 1; i < qtd; i++){
     const c = " C" + X(i-1) + " " + (Y(i-1) + GAP / 2) + " " + X(i) + " " + (Y(i) - GAP / 2) + " " + X(i) + " " + Y(i);
-    all += c; if(i <= last) done += c;
+    all += c; if(inicio + i < pos) done += c;
   }
   const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 100 " + H); svg.setAttribute("preserveAspectRatio", "none"); svg.setAttribute("aria-hidden", "true"); svg.style.height = H + "px";
   const p1 = document.createElementNS(NS, "path"); p1.setAttribute("d", all); p1.setAttribute("class", "trk"); svg.appendChild(p1);
-  if(last > 0){ const p2 = document.createElementNS(NS, "path"); p2.setAttribute("d", done); p2.setAttribute("class", "dn"); svg.appendChild(p2); }
+  if(pos > inicio){ const p2 = document.createElementNS(NS, "path"); p2.setAttribute("d", done); p2.setAttribute("class", "dn"); svg.appendChild(p2); }
   box.style.height = H + "px"; box.appendChild(svg);
-
-  for(let i = 0; i < n; i++){
-    const st = i < pos ? "done" : (i === pos ? "cur" : "lock");
+  /* Elementos decorativos discretos nas laterais, sem cobrir os nós do caminho. */
+  tema.motivos.forEach((simbolo, i) => {
+    const deco = document.createElement("span"); deco.className = "jmotif";
+    deco.textContent = simbolo; deco.setAttribute("aria-hidden", "true");
+    deco.style.top = (Y(Math.min(qtd - 1, Math.max(0, Math.round((i + 1) * (qtd - 1) / 5)))) - 14) + "px";
+    deco.style.left = i % 2 === 0 ? "5%" : "88%";
+    deco.style.color = cor; box.appendChild(deco);
+  });
+  for(let i = 0; i < qtd; i++){
+    const fase = inicio + i;
+    const st = fase < pos ? "done" : (fase === pos ? "cur" : "lock");
     const el = document.createElement(st === "cur" ? "button" : "div");
     el.className = "jn " + st; el.style.left = X(i) + "%"; el.style.top = Y(i) + "px";
     if(st === "cur"){
-      el.type = "button"; el.textContent = String(i + 1);
-      el.setAttribute("aria-label", "Fase " + (i + 1) + " disponível. Responder");
+      el.type = "button"; el.textContent = String(fase + 1);
+      el.setAttribute("aria-label", "Fase " + (fase + 1) + " disponível. Responder");
       el.onclick = () => { location.hash = "questao"; };
     } else if(st === "done"){
-      el.innerHTML = ico("tick"); el.setAttribute("aria-label", "Fase " + (i + 1) + " concluída");
+      el.innerHTML = ico("tick"); el.setAttribute("aria-label", "Fase " + (fase + 1) + " concluída");
     } else {
-      el.innerHTML = ico("lock"); el.setAttribute("aria-label", "Fase " + (i + 1) + " bloqueada");
+      el.innerHTML = ico("lock"); el.setAttribute("aria-label", "Fase " + (fase + 1) + " bloqueada");
     }
     box.appendChild(el);
     if(st === "cur"){
@@ -746,10 +1519,11 @@ function renderCaminho(d){
       tg.style.left = X(i) + "%"; tg.style.top = Y(i) + "px"; box.appendChild(tg);
     }
   }
-  const cur = box.querySelector(".jn.cur");
-  if(cur) setTimeout(() => { try{ cur.scrollIntoView({ block: "center", behavior: "smooth" }); }catch(e){} }, 80);
+  const faixa = document.createElement("div"); faixa.className = "empty";
+  faixa.style.cssText = "position:absolute;left:0;right:0;bottom:0;padding:0;text-align:center";
+  faixa.textContent = "Exibindo fases " + (inicio + 1) + "–" + fim + " de " + n;
+  box.appendChild(faixa); box.style.height = (H + 22) + "px";
 }
-
 async function carregarCaminho(tok){
   const s = Sessao.get(); if(!s || !jSel) return;
   $("#jpath").textContent = ""; $("#jpath").style.height = "auto";
@@ -873,7 +1647,7 @@ $("#rescont").onclick = () => { location.hash = "jornada"; };
 function route(){
   const s = Sessao.get();
   let h = location.hash.slice(1);
-  h = s ? (["overall", "jornada", "questao"].includes(h) ? h : "home") : (h === "cadastro" ? "cadastro" : "login");
+  h = s ? (["overall", "ranking", "jornada", "questao"].includes(h) ? h : "home") : (h === "cadastro" ? "cadastro" : "login");
   document.body.dataset.view = h;
   $$("section").forEach(x => x.classList.add("hide"));
   $("#v-" + h).classList.remove("hide");
@@ -884,6 +1658,11 @@ function route(){
     if(painelChave !== chave){ painelChave = chave; carregarPainel(); }
     if(h === "jornada") abrirJornada();
     if(h === "questao") abrirQuestao();
+    if(h === "ranking"){
+      /* ao abrir a tela de ranking, busca a aba atualmente ativa */
+      const activeTab = $("#v-ranking .tab.active");
+      carregarRanking(activeTab ? activeTab.dataset.rk : "geral");
+    }
   } else { painelChave = null; }
   window.scrollTo(0, 0);
 }
@@ -971,7 +1750,8 @@ sb.auth.onAuthStateChange((ev, session) => {
 $("#out").onclick = async () => {
   const b = $("#out"), s = Sessao.get(); b.disabled = true;
   try{ if(s) await LogService.fechar(s.logId); }catch(e){ console.error(e); }
-  Sessao.set(null); jMats = []; jDados = null; qAtual = null; b.disabled = false; location.hash = "login"; route();
+  Sessao.set(null); jMats = []; jDados = null; qAtual = null; materiasCarregadas = [];
+  b.disabled = false; location.hash = "login"; route();
 };
 
 route();
