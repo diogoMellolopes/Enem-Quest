@@ -1901,5 +1901,755 @@ $("#out").onclick = async () => {
 
 route();
 </script>
+<script>
+(function(){
+"use strict";
+if(typeof sb === "undefined" || typeof Sessao === "undefined" || typeof ICONS === "undefined" || typeof ico === "undefined"){
+  console.error("[Grupos] Cole este bloco depois do script principal do app (antes de </body>)."); return;
+}
+const shell = document.querySelector(".auth-shell");
+if(!shell){ console.error("[Grupos] .auth-shell não encontrado."); return; }
+
+/* ---------- utilidades ---------- */
+const Q = s => document.querySelector(s), QA = s => [...document.querySelectorAll(s)];
+const el = (t, c, x) => { const e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; };
+const inicial = n => ((n || "?").trim().charAt(0) || "?").toUpperCase();
+const nf = n => Number(n || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+const dataBR = s => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ""); return m ? m[3] + "/" + m[2] + "/" + m[1] : ""; };
+const uid = () => Sessao.get().userId;
+const go = h => { location.hash = h; };
+const say = (id, t, tipo) => { const m = Q("#" + id); m.textContent = t || ""; m.className = "msg" + (t ? " " + tipo : ""); };
+const fieldErr = (id, t) => { const d = Q('[data-gfor="' + id + '"]'); if(d) d.textContent = t || ""; Q("#" + id).classList.toggle("bad", !!t); };
+const sub = ev => ev.submitter || ev.target.querySelector('[type="submit"]');
+
+const ERROS = {
+  CODIGO_INVALIDO: "Código inválido ou grupo não encontrado.",
+  NOME_INVALIDO: "O nome do grupo deve ter de 3 a 50 caracteres.",
+  DESCRICAO_LONGA: "A descrição deve ter até 200 caracteres.",
+  PRIVACIDADE_INVALIDA: "Escolha entre grupo público ou privado.",
+  FOTO_INVALIDA: "Não foi possível usar essa imagem. Escolha um PNG, JPG ou WEBP.",
+  NAO_MEMBRO: "Você não faz parte deste grupo.",
+  GRUPO_PRIVADO: "Este grupo é privado. Entre com o código de convite.",
+  SEM_PERMISSAO: "Você só pode ver o perfil de quem participa dos seus grupos.",
+  USUARIO_INVALIDO: "Sessão inválida. Saia e entre novamente."
+};
+function tr(e){
+  const m = (e && e.message) || "";
+  for(const k in ERROS) if(m.includes(k)) return ERROS[k];
+  if(/could not find the function|schema cache/i.test(m)) return "Funções dos grupos não encontradas. Rode o grupos.sql no Supabase.";
+  if(/(Descricao|Privacidade|FotoGrupo|LiderID|Entrada)/.test(m) && /does not exist/i.test(m)) return "O banco não tem as colunas novas dos grupos. Rode o grupos.sql no Supabase.";
+  return m || "Erro inesperado.";
+}
+async function rodar(btn, out, fn){
+  if(btn) btn.disabled = true;
+  try{ await fn(); }catch(e){ console.error(e); say(out, tr(e), "e"); }
+  finally{ if(btn) btn.disabled = false; }
+}
+
+/* ---------- ícones extras ---------- */
+Object.assign(ICONS, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M15 8l3 3"/>',
+  camera:'<path d="M4 8h3l1.5-2h7L17 8h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+  crown:'<path d="m4 8 4 4 4-6 4 6 4-4-1.5 10h-13Z"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>'
+});
+
+/* ---------- estilos ---------- */
+const VS = ["grupos","gcriar","gentrar","grupo","membro"].map(v => '[data-view="' + v + '"]').join(",");
+const css = document.createElement("style");
+css.textContent = `
+body:is(${VS}){align-items:stretch;padding:0;overflow-x:hidden;overflow-y:auto}
+body:is(${VS}) main{width:100%;max-width:none;min-height:100svh;margin:0}
+body:is(${VS}) .auth-shell{display:flex;flex-direction:column;width:100%;min-height:100svh;height:auto;border-radius:0;border:0;box-shadow:none;overflow:visible}
+body:is(${VS}) .hero{flex:none;height:86px;padding:18px 22px 0}
+body:is(${VS}) .cap{display:none}
+body:is(${VS}) .gv{flex:1;min-height:calc(100svh - 85px);padding:20px 25px max(28px,env(safe-area-inset-bottom));border-radius:25px 25px 0 0;overflow:visible}
+@media(min-width:600px){
+  body:is(${VS}){align-items:center;padding:28px 20px}
+  body:is(${VS}) main{max-width:430px;min-height:0;margin:auto}
+  body:is(${VS}) .auth-shell{min-height:min(780px,calc(100svh - 56px));border:1px solid rgba(220,227,245,.85);border-radius:27px;box-shadow:0 12px 38px rgba(36,49,105,.13);overflow:hidden}
+  body:is(${VS}) .gv{padding-left:24px;padding-right:24px}
+}
+@media(max-width:380px){body:is(${VS}) .gv{padding-left:18px;padding-right:18px}}
+@media(max-height:650px){body:is(${VS}) .hero{height:76px;padding-top:12px}}
+
+.gv .btn svg{width:16px;height:16px}
+.gv .btn i{display:grid;place-items:center}
+.gv .btn{height:46px;font-size:13px;border-radius:12px}
+.btn.g-o{background:#fff;color:#344477;border:1px solid var(--line);box-shadow:none}
+.btn.g-danger{background:#fff;color:#c62839;border:1px solid #f3c3c8;box-shadow:none}
+.g-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 4px}
+.g-acts .btn{margin:0}
+.g-list{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.g-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:15px;padding:11px;font:inherit;color:inherit;cursor:pointer}
+.g-ph{width:46px;height:46px;border-radius:14px;flex:none;background:linear-gradient(135deg,#4c5cf0,#7b86ff);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;overflow:hidden}
+.g-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.g-info{flex:1;min-width:0}
+.g-card b{display:block;font-size:13px;color:#28366c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g-card small{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:10px;color:var(--muted);margin-top:3px}
+.g-pos{flex:none;font-size:11px;font-weight:800;color:#4659d8;background:#eef1ff;border-radius:9px;padding:5px 9px}
+.g-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:#eef1ff;color:#4659d8}
+.g-tag svg{width:10px;height:10px}
+.g-tag.priv{background:#fff1e6;color:#c25e08}
+.g-tag.lider{background:#fff8db;color:#a77d06}
+.g-join{flex:none;border:0;height:34px;padding:0 15px;border-radius:10px;background:linear-gradient(105deg,#4c5cf0,#4a55e2);color:#fff;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.g-join:disabled{opacity:.6;cursor:wait}
+label.g-lab{display:block;font-size:12px;font-weight:700;color:#344477;margin:16px 0 7px}
+.g-in{appearance:none;width:100%;height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#26345f;padding:0 14px;font:14px/1.2 inherit;outline:none}
+textarea.g-in{height:auto;min-height:92px;padding:11px 14px;line-height:1.5;resize:vertical;font-size:13px}
+.g-in:focus{border-color:#6573e8;box-shadow:0 0 0 2px rgba(78,91,240,.11)}
+.g-in.bad{border-color:var(--danger)}
+.g-cnt{font-size:10px;color:var(--muted);text-align:right;margin-top:3px}
+.g-photo{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0 4px}
+.g-pbtn{width:96px;height:96px;border-radius:28px;border:2px dashed #b9c4ee;background:#f5f7ff;color:#4659d8;display:grid;place-items:center;cursor:pointer;overflow:hidden;padding:0}
+.g-pbtn img{width:100%;height:100%;object-fit:cover;display:block}
+.g-pbtn svg{width:30px;height:30px}
+.g-link{border:0;background:none;color:#4659d8;font:inherit;font-size:11px;font-weight:700;cursor:pointer;padding:4px 8px}
+.g-seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-seg button{display:flex;flex-direction:column;align-items:center;gap:5px;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:12px 8px;font:inherit;font-size:12px;font-weight:700;color:#344477;cursor:pointer}
+.g-seg button svg{width:20px;height:20px}
+.g-seg button.on{border-color:#4c5cf0;background:#f5f7ff;color:#3942bd}
+.g-hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
+.g-codein{text-align:center;letter-spacing:7px;font-weight:800;font-size:22px;height:56px;text-transform:uppercase}
+.g-head{display:flex;align-items:center;gap:13px}
+.g-head .g-ph{width:60px;height:60px;border-radius:18px;font-size:24px}
+.g-head h3{margin:0;font-size:17px;line-height:1.25;color:#28366c;word-break:break-word}
+.g-head small{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:10px;color:var(--muted);margin-top:4px}
+.g-desc{font-size:12px;line-height:1.55;color:#5d6a92;margin:12px 0 0;white-space:pre-line;word-break:break-word}
+.g-lider{display:flex;align-items:center;gap:8px;margin-top:12px;padding:9px 12px;border-radius:12px;background:#fff8db;color:#8a6805;font-size:12px;font-weight:700}
+.g-lider svg{width:18px;height:18px;flex:none}
+.g-code{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;border:1px dashed #b9c4ee;background:#f5f7ff;border-radius:13px;padding:10px 12px}
+.g-code span{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.g-code b{font-size:19px;letter-spacing:4px;color:#28366c}
+.g-code .g-link{display:flex;align-items:center;gap:5px}
+.g-code .g-link svg{width:14px;height:14px}
+.g-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.g-chips::-webkit-scrollbar{display:none}
+.g-chip{flex:none;border:1px solid var(--line);background:#fff;color:#344477;border-radius:99px;padding:8px 14px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.g-chip.on{background:linear-gradient(105deg,#4c5cf0,#4a55e2);border-color:transparent;color:#fff}
+.g-rk{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.g-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:9px 11px;font:inherit;color:inherit;cursor:pointer}
+.g-row.me{border-color:#9aa8f5;background:#f5f7ff}
+.g-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:800;font-size:11px;color:#6b7bb8;background:#f5f7ff}
+.g-n.p1{background:#fff8db;color:#d4a017}
+.g-n.p2{background:#f0f2f5;color:#7a869a}
+.g-n.p3{background:#fdf2ec;color:#c97a55}
+.g-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4c5cf0,#7b86ff);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.g-row .g-info b{font-size:13px}
+.g-row .g-info small{margin-top:2px}
+.g-pts{flex:none;font-size:13px;font-weight:800;color:#28366c}
+.g-pts i{display:block;font-style:normal;font-size:8px;font-weight:700;color:var(--muted);text-align:right}
+.g-conf{margin-top:12px;padding:13px;border-radius:14px;background:#fff0f1;text-align:center;font-size:12px;color:var(--danger);line-height:1.5}
+.g-conf .g-acts{margin-top:12px}
+.g-bigav{width:100px;height:100px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,#4c5cf0,#7b86ff);color:#fff;display:grid;place-items:center;font-size:38px;font-weight:800;overflow:hidden;border:4px solid #fff;box-shadow:0 2px 12px rgba(50,65,150,.14)}
+.g-bigav img{width:100%;height:100%;object-fit:cover;display:block}
+.g-pf{text-align:center;margin-bottom:14px}
+.g-pf h3{margin:0;font-size:17px;color:#28366c}
+.g-pf small{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.g-pf .g-tag{margin-top:8px}
+`;
+document.head.appendChild(css);
+
+/* ---------- telas ---------- */
+shell.insertAdjacentHTML("beforeend", `
+  <!-- Lista de grupos -->
+  <section id="v-grupos" class="panel gv hide">
+    <div class="back"><button id="gback" type="button" aria-label="Voltar ao início" title="Voltar" data-gi="back"></button><h2>Grupos e desafios</h2></div>
+    <div id="gmsg" class="msg" role="alert"></div>
+    <div class="g-acts">
+      <button class="btn p" id="gnovo" type="button"><i data-gi="plus"></i>Criar grupo</button>
+      <button class="btn g-o" id="gcod" type="button"><i data-gi="key"></i>Entrar com código</button>
+    </div>
+    <div class="sec-t">Meus grupos</div>
+    <div class="g-list" id="glist"><span class="empty">Carregando...</span></div>
+  </section>
+
+  <!-- Criar grupo -->
+  <section id="v-gcriar" class="panel gv hide">
+    <div class="back"><button id="cback" type="button" aria-label="Voltar" title="Voltar" data-gi="back"></button><h2>Criar grupo</h2></div>
+    <p class="intro" style="max-width:none;font-size:12px">Escolha uma foto, dê um nome e defina quem pode entrar.</p>
+    <form id="fg" novalidate>
+      <div class="g-photo">
+        <button type="button" class="g-pbtn" id="gfotobtn" aria-label="Escolher foto do grupo"></button>
+        <input id="gfotoin" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        <button type="button" class="g-link hide" id="gfotorm">Remover foto</button>
+        <span class="g-hint" style="margin:0">Foto do grupo (opcional)</span>
+      </div>
+      <label class="g-lab" for="gnome">Nome do grupo</label>
+      <input id="gnome" class="g-in" maxlength="50" autocomplete="off" placeholder="Ex.: Turma do ENEM 2026">
+      <div class="g-cnt" id="gnomec">0/50</div><div class="err" data-gfor="gnome"></div>
+      <label class="g-lab" for="gdesc">Descrição</label>
+      <textarea id="gdesc" class="g-in" maxlength="200" placeholder="Fale um pouco sobre o grupo (opcional)"></textarea>
+      <div class="g-cnt" id="gdescc">0/200</div><div class="err" data-gfor="gdesc"></div>
+      <label class="g-lab">Privacidade</label>
+      <div class="g-seg" id="gpriv">
+        <button type="button" data-priv="publico"><span data-gi="globe"></span>Público</button>
+        <button type="button" data-priv="privado"><span data-gi="lock"></span>Privado</button>
+      </div>
+      <div class="g-hint" id="gprivh"></div>
+      <div id="gcmsg" class="msg" role="alert"></div>
+      <button class="btn p" type="submit" style="margin-top:22px"><i data-gi="plus"></i>Criar grupo</button>
+    </form>
+  </section>
+
+  <!-- Entrar com código -->
+  <section id="v-gentrar" class="panel gv hide">
+    <div class="back"><button id="eback" type="button" aria-label="Voltar" title="Voltar" data-gi="back"></button><h2>Entrar em um grupo</h2></div>
+    <p class="intro" style="max-width:none;font-size:12px">Digite o código de convite do grupo. Peça o código ao líder: ele aparece no topo da tela do grupo.</p>
+    <form id="fe" novalidate>
+      <label class="g-lab" for="gcodigo" style="margin-top:6px">Código do grupo</label>
+      <input id="gcodigo" class="g-in g-codein" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC123">
+      <div class="err" data-gfor="gcodigo"></div>
+      <div id="gemsg" class="msg" role="alert"></div>
+      <button class="btn p" type="submit"><i data-gi="key"></i>Entrar</button>
+    </form>
+    <div class="sec-t" style="margin-top:22px">Grupos públicos</div>
+    <div class="g-list" id="gpub"><span class="empty">Carregando...</span></div>
+  </section>
+
+  <!-- Dentro do grupo -->
+  <section id="v-grupo" class="panel gv hide">
+    <div class="back"><button id="grback" type="button" aria-label="Voltar aos grupos" title="Voltar" data-gi="back"></button><h2>Grupo</h2></div>
+    <div id="grmsg" class="msg" role="alert"></div>
+    <div class="g-head"><div class="g-ph" id="grfoto"></div><div style="min-width:0"><h3 id="grnome">—</h3><small id="grsub"></small></div></div>
+    <p class="g-desc hide" id="grdesc"></p>
+    <div class="g-lider hide" id="grlider"></div>
+    <div class="g-code"><div><span>Código de convite</span><b id="grcod">——</b></div><button type="button" class="g-link" id="grcopy"><i data-gi="copy"></i>Copiar</button></div>
+    <div class="sec-t">Ranking do grupo</div>
+    <div class="g-chips" id="grfil"></div>
+    <div class="g-rk" id="grrank"><span class="empty">Carregando...</span></div>
+    <div class="sec-t">Opções</div>
+    <button class="btn g-danger" id="grsair" type="button"><i data-gi="logout"></i>Sair do grupo</button>
+    <div class="g-conf hide" id="grconf"><span id="grconft"></span>
+      <div class="g-acts"><button class="btn g-o" id="grno" type="button">Cancelar</button><button class="btn p" id="grsim" type="button" style="background:#c62839;box-shadow:none">Sair</button></div>
+    </div>
+  </section>
+
+  <!-- Perfil de um participante -->
+  <section id="v-membro" class="panel gv hide">
+    <div class="back"><button id="mback" type="button" aria-label="Voltar ao grupo" title="Voltar" data-gi="back"></button><h2>Perfil</h2></div>
+    <div id="mmsg" class="msg" role="alert"></div>
+    <div class="g-pf"><div class="g-bigav" id="mav">?</div><h3 id="mnome">—</h3><small id="msub"></small><span class="g-tag lider hide" id="mlider"></span></div>
+    <div class="big"><span>Overall</span><b id="mov">0</b><small id="movf"></small></div>
+    <div class="mini">
+      <div class="mc fire"><i data-gi="flame"></i><div><b id="mof">0</b><span>dias de ofensiva</span></div></div>
+      <div class="mc"><i data-gi="check"></i><div><b id="mqr">0</b><span>questões respondidas</span></div></div>
+    </div>
+    <div class="sec-t">Pontuação por matéria</div>
+    <div class="pm" id="mpm"><span class="empty">Carregando...</span></div>
+  </section>
+`);
+QA("[data-gi]").forEach(e => { e.innerHTML = ico(e.dataset.gi); });
+
+/* ---------- estado ---------- */
+const memP = {};
+const P = {
+  get(k){ try{ return Number(localStorage.getItem(k)) || null; }catch(e){ return memP[k] || null; } },
+  set(k, v){ memP[k] = v; try{ localStorage.setItem(k, String(v)); }catch(e){} }
+};
+let gSel = P.get("eq_grupo"), mSel = P.get("eq_membro"), mLider = false;
+let gFiltro = null, gFiltroDe = null, gPriv = "publico", gFoto = null, gDados = null, tok = 0, ultima = null, tCopia = null;
+
+/* ---------- acesso ao banco (funções do grupos.sql) ---------- */
+const G = {
+  async rpc(fn, a){ const { data, error } = await sb.rpc(fn, a); if(error) throw error; return data; },
+  async listar(){ return (await this.rpc("grupo_listar", { p_user_id: uid() })) || []; },
+  criar(g){ return this.rpc("grupo_criar", { p_user_id: uid(), p_nome: g.nome, p_descricao: g.descricao, p_privacidade: g.privacidade, p_foto: g.foto }); },
+  entrar(codigo){ return this.rpc("grupo_entrar", { p_user_id: uid(), p_codigo: codigo }); },
+  async publicos(){ return (await this.rpc("grupo_publicos", { p_user_id: uid() })) || []; },
+  entrarPublico(id){ return this.rpc("grupo_entrar_publico", { p_user_id: uid(), p_grupo_id: id }); },
+  detalhe(id, mid){ return this.rpc("grupo_detalhe", { p_user_id: uid(), p_grupo_id: id, p_materia_id: mid || null }); },
+  sair(id){ return this.rpc("grupo_sair", { p_user_id: uid(), p_grupo_id: id }); },
+  perfil(alvo){ return this.rpc("perfil_usuario", { p_user_id: uid(), p_alvo_id: alvo }); }
+};
+
+function pintaAvatar(box, foto, nome){
+  box.textContent = "";
+  const u = urlSegura(foto);
+  if(u){ const im = document.createElement("img"); im.src = u; im.alt = ""; im.onerror = () => { im.remove(); box.textContent = inicial(nome); }; box.appendChild(im); }
+  else box.textContent = inicial(nome);
+  return box;
+}
+function tagPriv(p){ return el("span", "g-tag" + (p === "privado" ? " priv" : ""), p === "privado" ? "Privado" : "Público"); }
+function tagLider(txt){ const t = el("span", "g-tag lider"); t.innerHTML = ico("crown"); t.appendChild(document.createTextNode(txt || "Líder")); return t; }
+const abrirGrupoDe = id => { gSel = id; P.set("eq_grupo", id); go("grupo"); };
+const abrirMembroDe = (id, lider) => { mSel = id; mLider = !!lider; P.set("eq_membro", id); go("membro"); };
+
+/* ============ 1) lista de grupos ============ */
+async function abrirGrupos(){
+  const t = ++tok; say("gmsg", "");
+  const box = Q("#glist"); box.textContent = ""; box.appendChild(el("span", "empty", "Carregando..."));
+  try{ const l = await G.listar(); if(t !== tok) return; renderGrupos(l); }
+  catch(e){ if(t !== tok) return; console.error(e); box.textContent = ""; box.appendChild(el("span", "empty", "—")); say("gmsg", tr(e), "e"); }
+}
+function renderGrupos(l){
+  const box = Q("#glist"); box.textContent = "";
+  if(!l.length){ box.appendChild(el("span", "empty", "Você ainda não participa de nenhum grupo.")); return; }
+  l.forEach(g => {
+    const b = el("button", "g-card"); b.type = "button";
+    b.appendChild(pintaAvatar(el("div", "g-ph"), g.foto, g.nome));
+    const info = el("div", "g-info"); info.appendChild(el("b", null, g.nome));
+    const sm = el("small", null, g.membros + (Number(g.membros) === 1 ? " participante" : " participantes"));
+    sm.appendChild(tagPriv(g.privacidade)); if(g.sou_lider) sm.appendChild(tagLider("Líder"));
+    info.appendChild(sm); b.appendChild(info);
+    if(g.posicao) b.appendChild(el("span", "g-pos", "#" + g.posicao));
+    b.onclick = () => abrirGrupoDe(g.id); box.appendChild(b);
+  });
+}
+Q("#gback").onclick = () => irPara("Início");
+Q("#gnovo").onclick = () => go("gcriar");
+Q("#gcod").onclick = () => go("gentrar");
+
+/* ============ 2) criar grupo ============ */
+const PRIV_TXT = {
+  publico: "Qualquer pessoa pode encontrar o grupo na lista de grupos públicos e entrar. Também é possível entrar com o código.",
+  privado: "O grupo não aparece em nenhuma lista. Só entra quem receber o código de convite."
+};
+function atualizaPriv(){
+  QA("#gpriv button").forEach(b => { const on = b.dataset.priv === gPriv; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+  Q("#gprivh").textContent = PRIV_TXT[gPriv];
+}
+function atualizaFoto(){
+  const b = Q("#gfotobtn"); b.textContent = "";
+  if(gFoto){ const im = document.createElement("img"); im.src = gFoto; im.alt = "Foto do grupo"; b.appendChild(im); }
+  else b.innerHTML = ico("camera");
+  Q("#gfotorm").classList.toggle("hide", !gFoto);
+}
+function contadores(){
+  Q("#gnomec").textContent = Q("#gnome").value.length + "/50";
+  Q("#gdescc").textContent = Q("#gdesc").value.length + "/200";
+}
+function abrirCriar(){
+  gFoto = null; gPriv = "publico"; Q("#fg").reset(); say("gcmsg", "");
+  fieldErr("gnome", ""); fieldErr("gdesc", ""); atualizaFoto(); atualizaPriv(); contadores();
+}
+/* reduz a foto para 192x192 (recorte central) e devolve um data URL pequeno */
+function lerImagem(file, lado){
+  lado = lado || 192;
+  return new Promise((ok, no) => {
+    if(!file || !/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) return no(new Error("FOTO_INVALIDA"));
+    const fr = new FileReader();
+    fr.onerror = () => no(new Error("FOTO_INVALIDA"));
+    fr.onload = () => {
+      const im = new Image();
+      im.onerror = () => no(new Error("FOTO_INVALIDA"));
+      im.onload = () => {
+        try{
+          const c = document.createElement("canvas"); c.width = c.height = lado;
+          const x = c.getContext("2d"); if(!x) return no(new Error("FOTO_INVALIDA"));
+          const m = Math.min(im.width, im.height);
+          x.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, lado, lado);
+          ok(c.toDataURL("image/jpeg", 0.82));
+        }catch(e){ no(new Error("FOTO_INVALIDA")); }
+      };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+Q("#gnome").addEventListener("input", contadores);
+Q("#gdesc").addEventListener("input", contadores);
+Q("#gfotobtn").onclick = () => Q("#gfotoin").click();
+Q("#gfotorm").onclick = () => { gFoto = null; atualizaFoto(); };
+Q("#gfotoin").onchange = async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = ""; if(!f) return;
+  say("gcmsg", "");
+  try{ gFoto = await lerImagem(f); atualizaFoto(); }catch(e){ say("gcmsg", tr(e), "e"); }
+};
+QA("#gpriv button").forEach(b => { b.onclick = () => { gPriv = b.dataset.priv; atualizaPriv(); }; });
+Q("#fg").onsubmit = ev => {
+  ev.preventDefault(); fieldErr("gnome", ""); fieldErr("gdesc", ""); say("gcmsg", "");
+  const nome = Q("#gnome").value.trim(), desc = Q("#gdesc").value.trim(); let ok = true;
+  if(nome.length < 3){ fieldErr("gnome", "O nome deve ter de 3 a 50 caracteres."); ok = false; }
+  if(desc.length > 200){ fieldErr("gdesc", "A descrição deve ter até 200 caracteres."); ok = false; }
+  if(ok) rodar(sub(ev), "gcmsg", async () => {
+    const r = await G.criar({ nome, descricao: desc || null, privacidade: gPriv, foto: gFoto });
+    abrirGrupoDe(r.id);
+  });
+};
+Q("#cback").onclick = () => go("grupos");
+
+/* ============ 3) entrar em grupo ============ */
+async function abrirEntrar(){
+  const t = ++tok; say("gemsg", ""); fieldErr("gcodigo", ""); Q("#gcodigo").value = "";
+  const box = Q("#gpub"); box.textContent = ""; box.appendChild(el("span", "empty", "Carregando..."));
+  try{ const l = await G.publicos(); if(t !== tok) return; renderPublicos(l); }
+  catch(e){ if(t !== tok) return; console.error(e); box.textContent = ""; box.appendChild(el("span", "empty", "—")); say("gemsg", tr(e), "e"); }
+}
+function renderPublicos(l){
+  const box = Q("#gpub"); box.textContent = "";
+  if(!l.length){ box.appendChild(el("span", "empty", "Nenhum grupo público disponível no momento.")); return; }
+  l.forEach(g => {
+    const r = el("div", "g-card");
+    r.appendChild(pintaAvatar(el("div", "g-ph"), g.foto, g.nome));
+    const info = el("div", "g-info"); info.appendChild(el("b", null, g.nome));
+    info.appendChild(el("small", null, g.membros + (Number(g.membros) === 1 ? " participante" : " participantes") + (g.descricao ? " · " + g.descricao : "")));
+    r.appendChild(info);
+    const b = el("button", "g-join", "Entrar"); b.type = "button";
+    b.onclick = () => rodar(b, "gemsg", async () => { confirmarEntrada(await G.entrarPublico(g.id)); });
+    r.appendChild(b); box.appendChild(r);
+  });
+}
+function confirmarEntrada(r){
+  gSel = r.id; P.set("eq_grupo", r.id);
+  say("gemsg", r.ja_membro ? "Você já faz parte de " + r.nome + ". Abrindo..." : "Você entrou em " + r.nome + "!", "o");
+  setTimeout(() => { if(location.hash === "#gentrar") go("grupo"); }, 900);
+}
+Q("#gcodigo").addEventListener("input", ev => { ev.target.value = ev.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
+Q("#fe").onsubmit = ev => {
+  ev.preventDefault(); fieldErr("gcodigo", ""); say("gemsg", "");
+  const cod = Q("#gcodigo").value.trim().toUpperCase();
+  if(cod.length < 4){ fieldErr("gcodigo", "Informe o código do grupo."); return; }
+  rodar(sub(ev), "gemsg", async () => { confirmarEntrada(await G.entrar(cod)); });
+};
+Q("#eback").onclick = () => go("grupos");
+
+/* ============ 4) dentro do grupo ============ */
+async function abrirGrupo(){
+  if(!gSel) gSel = P.get("eq_grupo");
+  if(!gSel){ go("grupos"); return; }
+  if(gFiltroDe !== gSel){ gFiltro = null; gFiltroDe = gSel; }
+  const t = ++tok; say("grmsg", ""); Q("#grconf").classList.add("hide");
+  try{ const d = await G.detalhe(gSel, gFiltro); if(t !== tok) return; gDados = d; renderGrupo(d); }
+  catch(e){
+    if(t !== tok) return; console.error(e);
+    if(/NAO_MEMBRO/.test((e && e.message) || "")){ go("grupos"); return; }
+    say("grmsg", tr(e), "e");
+  }
+}
+function renderGrupo(d){
+  const g = d.grupo, n = d.membros.length;
+  pintaAvatar(Q("#grfoto"), g.foto, g.nome);
+  Q("#grnome").textContent = g.nome;
+  const sub = Q("#grsub"); sub.textContent = n + (n === 1 ? " participante" : " participantes"); sub.appendChild(tagPriv(g.privacidade));
+  const ds = Q("#grdesc"); ds.textContent = g.descricao || ""; ds.classList.toggle("hide", !g.descricao);
+  const ld = Q("#grlider"); ld.textContent = "";
+  if(g.lider_nome){ ld.innerHTML = ico("crown"); ld.appendChild(document.createTextNode("Líder supremo: " + g.lider_nome + (g.sou_lider ? " (você)" : ""))); }
+  ld.classList.toggle("hide", !g.lider_nome);
+  Q("#grcod").textContent = g.codigo || "——";
+
+  const fil = Q("#grfil"); fil.textContent = "";
+  const chips = [{ id: null, nome: "Geral" }].concat(d.materias || []);
+  chips.forEach(m => {
+    const c = el("button", "g-chip" + ((m.id || null) === (d.filtro || null) ? " on" : ""), m.nome); c.type = "button";
+    c.onclick = () => { if((m.id || null) === (gFiltro || null)) return; gFiltro = m.id || null; abrirGrupo(); };
+    fil.appendChild(c);
+  });
+
+  const box = Q("#grrank"); box.textContent = "";
+  d.membros.forEach(m => {
+    const r = el("button", "g-row" + (m.eu ? " me" : "")); r.type = "button";
+    r.appendChild(el("span", "g-n" + (m.posicao <= 3 ? " p" + m.posicao : ""), m.posicao + "º"));
+    r.appendChild(el("div", "g-av", inicial(m.nome)));
+    const info = el("div", "g-info"); info.appendChild(el("b", null, m.nome));
+    if(m.lider || m.eu){
+      const sm = el("small"); if(m.lider) sm.appendChild(tagLider("Líder supremo"));
+      if(m.eu) sm.appendChild(el("span", "g-tag", "Você")); info.appendChild(sm);
+    }
+    r.appendChild(info);
+    const pt = el("div", "g-pts", nf(m.pontos)); pt.appendChild(el("i", null, Number(m.pontos) === 1 ? "ponto" : "pontos")); r.appendChild(pt);
+    r.onclick = () => abrirMembroDe(m.user_id, m.lider);
+    box.appendChild(r);
+  });
+}
+Q("#grcopy").onclick = async () => {
+  const cod = gDados && gDados.grupo.codigo; if(!cod) return;
+  let ok = false;
+  try{ await navigator.clipboard.writeText(cod); ok = true; }
+  catch(e){
+    try{ const t = document.createElement("textarea"); t.value = cod; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select(); ok = document.execCommand("copy"); t.remove(); }catch(e2){}
+  }
+  say("grmsg", ok ? "Código " + cod + " copiado!" : "Não foi possível copiar. O código é " + cod + ".", ok ? "o" : "e");
+  clearTimeout(tCopia); tCopia = setTimeout(() => say("grmsg", ""), 2600);
+};
+Q("#grsair").onclick = () => {
+  const d = gDados; if(!d) return; let t;
+  if(d.membros.length === 1) t = "Você é o único participante. Ao sair, o grupo será excluído.";
+  else if(d.grupo.sou_lider) t = "Você é o líder supremo. Ao sair, a liderança passa para o participante mais antigo do grupo.";
+  else t = "Tem certeza que quer sair de " + d.grupo.nome + "?";
+  Q("#grconft").textContent = t; Q("#grconf").classList.remove("hide");
+};
+Q("#grno").onclick = () => Q("#grconf").classList.add("hide");
+Q("#grsim").onclick = () => rodar(Q("#grsim"), "grmsg", async () => {
+  await G.sair(gSel); gSel = null; P.set("eq_grupo", 0); gDados = null; go("grupos");
+}).then(() => Q("#grconf").classList.add("hide"));
+Q("#grback").onclick = () => go("grupos");
+
+/* ============ 5) perfil de um participante ============ */
+async function abrirMembro(){
+  if(!mSel) mSel = P.get("eq_membro");
+  if(!mSel){ go(gSel ? "grupo" : "grupos"); return; }
+  const t = ++tok; say("mmsg", "");
+  Q("#mnome").textContent = "—"; Q("#msub").textContent = ""; pintaAvatar(Q("#mav"), null, "?");
+  ["mov", "mof", "mqr"].forEach(i => { Q("#" + i).textContent = "0"; }); Q("#movf").textContent = "";
+  Q("#mpm").textContent = ""; Q("#mpm").appendChild(el("span", "empty", "Carregando..."));
+  try{ const p = await G.perfil(mSel); if(t !== tok) return; renderMembro(p); }
+  catch(e){ if(t !== tok) return; console.error(e); Q("#mpm").textContent = ""; say("mmsg", tr(e), "e"); }
+}
+function renderMembro(p){
+  pintaAvatar(Q("#mav"), p.foto, p.nome);
+  Q("#mnome").textContent = p.nome;
+  Q("#msub").textContent = [p.registro ? "Membro desde " + dataBR(p.registro) : null, p.cidade].filter(Boolean).join(" · ");
+  const lt = Q("#mlider"); lt.textContent = ""; lt.innerHTML = ico("crown"); lt.appendChild(document.createTextNode("Líder supremo")); lt.classList.toggle("hide", !mLider);
+  Q("#mov").textContent = nf(p.overall); Q("#mof").textContent = nf(p.ofensiva); Q("#mqr").textContent = nf(p.respondidas);
+  const tm = Number(p.total_materias || 0), pt = Number(p.pontos || 0);
+  Q("#movf").textContent = nf(pt) + (pt === 1 ? " ponto" : " pontos") + " ÷ " + tm + (tm === 1 ? " matéria" : " matérias");
+  const box = Q("#mpm"); box.textContent = "";
+  const mats = p.materias || [];
+  if(!mats.length){ box.appendChild(el("span", "empty", "Nenhuma matéria cadastrada ainda.")); return; }
+  const max = Math.max(1, ...mats.map(m => Number(m.pontos) || 0));
+  mats.forEach((m, i) => {
+    const cor = (typeof temaDaMateria === "function") ? temaDaMateria(m.nome, i).cor : "#4c5cf0", v = Number(m.pontos) || 0;
+    const row = el("div", "pr"), ic = el("i", null, inicial(m.nome)); ic.style.background = cor;
+    const col = document.createElement("div"), t = el("div", "t");
+    t.append(el("b", null, m.nome), el("span", null, nf(v) + (v === 1 ? " ponto" : " pontos")));
+    const bar = el("div", "bar"), u = document.createElement("u"); u.style.width = (v / max * 100) + "%"; u.style.background = cor;
+    bar.appendChild(u); col.append(t, bar); row.append(ic, col); box.appendChild(row);
+  });
+}
+Q("#mback").onclick = () => go(gSel ? "grupo" : "grupos");
+
+/* ============ ligação com as rotas do app ============ */
+const LOAD = { grupos: abrirGrupos, gcriar: abrirCriar, gentrar: abrirEntrar, grupo: abrirGrupo, membro: abrirMembro };
+function gRoute(){
+  const h = location.hash.slice(1);
+  if(!Sessao.get() || !LOAD[h]){ ultima = null; return; }
+  document.body.dataset.view = h;
+  QA("section").forEach(x => x.classList.add("hide"));
+  Q("#v-" + h).classList.remove("hide");
+  if(ultima !== h){ ultima = h; window.scrollTo(0, 0); LOAD[h](); }
+}
+const rotaOriginal = window.route;
+window.route = function(){ if(typeof rotaOriginal === "function") rotaOriginal(); gRoute(); };
+addEventListener("hashchange", gRoute);
+
+/* atalho "Grupos" (painel, ranking, jornada...) */
+const irParaOriginal = window.irPara;
+window.irPara = function(nome){
+  if(nome === "Grupos e desafios"){ go("grupos"); return; }
+  return irParaOriginal.apply(this, arguments);
+};
+
+gRoute();
+})();
+</script>
+<script>
+(function(){
+"use strict";
+if(typeof PerfilService === "undefined" || typeof sb === "undefined" || typeof msg === "undefined"){
+  console.error("[Perfil] Cole este bloco depois do script principal do app (antes de </body>)."); return;
+}
+
+/* ---------- 1) acesso ao banco pelas funções do perfil.sql ---------- */
+PerfilService.carregar = async function(userId){
+  const { data, error } = await sb.rpc("perfil_carregar", { p_user_id: userId });
+  if(error) throw error;
+  if(!data) throw new Error("Perfil não encontrado.");
+  return data;                       /* { nome, FotoPerfil, email } */
+};
+PerfilService.salvar = async function(userId, nome, foto){
+  nome = (nome || "").trim();
+  if(nome.length < 2 || nome.length > 50) throw new Error("O nome deve ter de 2 a 50 caracteres.");
+  /* só envia foto quando for uma imagem nova (data URL); links antigos são ignorados e a foto atual é mantida */
+  const nova = (typeof foto === "string" && foto.indexOf("data:image/") === 0) ? foto : null;
+  const { data, error } = await sb.rpc("perfil_salvar", { p_user_id: userId, p_nome: nome, p_foto: nova });
+  if(error) throw error;
+  return (data && data.FotoPerfil) || null;
+};
+
+/* ---------- 2) foto: reduz para 360x360 (recorte central) ---------- */
+function reduzirFoto(file, lado){
+  lado = lado || 360;
+  return new Promise(function(ok, no){
+    const falha = function(){ no(new Error("FOTO_INVALIDA")); };
+    const desenhar = function(im, limpar){
+      try{
+        const c = document.createElement("canvas"); c.width = c.height = lado;
+        const x = c.getContext("2d"); if(!x) return falha();
+        const m = Math.min(im.width, im.height);
+        x.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, lado, lado);
+        if(limpar) limpar();
+        ok(c.toDataURL("image/jpeg", 0.82));
+      }catch(e){ falha(); }
+    };
+    const im = new Image();
+    im.onerror = falha;
+    if(window.URL && URL.createObjectURL){          /* não carrega a foto inteira na memória como texto */
+      const u = URL.createObjectURL(file);
+      im.onload = function(){ desenhar(im, function(){ URL.revokeObjectURL(u); }); };
+      im.src = u;
+    } else {
+      const fr = new FileReader(); fr.onerror = falha;
+      fr.onload = function(){ im.onload = function(){ desenhar(im); }; im.src = fr.result; };
+      fr.readAsDataURL(file);
+    }
+  });
+}
+
+/* Captura o evento ANTES do código antigo (que recusava acima de 2 MB) */
+document.addEventListener("change", async function(ev){
+  const input = ev.target;
+  if(!input || input.id !== "perfil-foto") return;
+  ev.stopImmediatePropagation();
+  const file = input.files && input.files[0];
+  if(!file) return;
+  if(["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0){
+    msg("perfil-msg", "Escolha uma imagem JPG, PNG ou WEBP.", "e"); input.value = ""; return;
+  }
+  if(file.size > 30 * 1024 * 1024){
+    msg("perfil-msg", "Essa imagem é grande demais (acima de 30 MB). Escolha outra.", "e"); input.value = ""; return;
+  }
+  msg("perfil-msg", "Preparando a foto...", "o");
+  try{
+    const reduzida = await reduzirFoto(file, 360);
+    perfilFotoSelecionada = reduzida;              /* variável do código principal */
+    mostrarAvatarPerfil(reduzida, document.getElementById("perfil-nome").value);
+    msg("perfil-msg", "Pré-visualização da foto. Clique em Salvar alterações para confirmar.", "o");
+  }catch(e){
+    console.error(e); perfilFotoSelecionada = null;
+    msg("perfil-msg", "Não foi possível usar essa imagem. Tente outra.", "e");
+  }finally{ input.value = ""; }
+}, true);
+})();
+</script>
+<script>
+(function(){
+"use strict";
+const box = document.getElementById("jpath"), tema = document.getElementById("jtema");
+if(!box || !tema){ console.error("[Jornada visual] Cole este bloco depois do script principal (antes de </body>)."); return; }
+
+/* ---------- desenhos (viewBox 64x64, traço) ---------- */
+const ARTE = {
+  compasso:'<circle cx="32" cy="10" r="4"/><path d="M32 14 16 56M32 14 48 56M25 38h14M16 56l-3 5"/>',
+  esquadro:'<path d="M10 54V10l44 44Z"/><path d="M18 46V30l16 16Z"/>',
+  transferidor:'<path d="M6 48A26 26 0 0 1 58 48Z"/><path d="M32 48v-8M13 38l5 4M51 38l-5 4M22 27l3 5M42 27l-3 5"/>',
+  regua:'<rect x="6" y="22" width="52" height="20" rx="3"/><path d="M14 22v8M22 22v5M30 22v8M38 22v5M46 22v8"/>',
+  lapis:'<path d="M12 52l4-12 28-28 8 8-28 28Z"/><path d="M40 16l8 8"/>',
+  atomo:'<circle cx="32" cy="32" r="4" fill="currentColor"/><ellipse cx="32" cy="32" rx="26" ry="10"/><ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(120 32 32)"/>',
+  dna:'<path d="M20 6C44 20 44 44 20 58M44 6C20 20 20 44 44 58"/><path d="M27 16h10M24 32h16M27 48h10"/>',
+  frasco:'<path d="M26 6h12M28 6v18L10 54q-2 4 2 4h40q4 0 2-4L36 24V6"/><path d="M18 42h28"/>',
+  folha:'<path d="M10 54C10 24 30 8 56 8 56 36 40 56 10 54Z"/><path d="M10 54 40 24"/>',
+  livro:'<path d="M8 12c12-4 20-2 24 4 4-6 12-8 24-4v38c-12-4-20-2-24 4-4-6-12-8-24-4Z"/><path d="M32 16v38"/>',
+  pena:'<path d="M52 8C30 12 18 28 14 50l4-4c16-2 30-14 34-38Z"/><path d="M14 50 8 58"/>',
+  balao:'<path d="M8 12h48v28H34L22 52V40H8Z"/><path d="M18 22h28M18 30h20"/>',
+  templo:'<path d="M6 22 32 8l26 14Z"/><path d="M12 26v24M24 26v24M40 26v24M52 26v24M6 54h52M4 58h56"/>',
+  ampulheta:'<path d="M16 8h32M16 56h32M18 8c0 18 12 20 14 24 2-4 14-6 14-24M18 56c0-18 12-20 14-24 2 4 14 6 14 24"/>',
+  rosa:'<circle cx="32" cy="32" r="24"/><path d="M32 8v48M8 32h48"/><path d="M32 14l6 18-6 18-6-18Z"/>',
+  pergaminho:'<path d="M16 10h32v38q0 8-8 8H16q8 0 8-8V16q0-6-8-6Z"/><path d="M30 22h12M30 30h12M30 38h12"/>',
+  estrela:'<path d="m32 6 7 17 18 2-14 12 5 18-16-10-16 10 5-18L7 25l18-2Z"/>'
+};
+
+/* ---------- temas: edite aqui ---------- */
+const TEMAS = {
+  matematica:{ tag:"Resolver",
+    arte:["compasso","esquadro","transferidor","regua","lapis"],
+    glifos:["π","√x","∑","∞","x²","±","∫","θ","÷","%","7","3","12","0,5","f(x)","Δ","sen θ","a²+b²=c²","n!","log"],
+    grandes:["π","∑","∞"] },
+  natureza:{ tag:"Explorar", bolhas:true,
+    arte:["atomo","dna","frasco","folha"],
+    glifos:["H₂O","CO₂","O₂","DNA","pH","ATP","E=mc²","F=m·a","Na⁺","λ","v=Δs/Δt","Fe"],
+    grandes:["⚛","DNA","H₂O"] },
+  linguagens:{ tag:"Ler",
+    arte:["livro","pena","balao"],
+    glifos:["A","Ç","ã","é","¿?","!","…","“ ”","Aa","&","@","ABC","verbo","rima"],
+    grandes:["Aa","“ ”","Ç"] },
+  humanas:{ tag:"Descobrir",
+    arte:["templo","ampulheta","rosa","pergaminho"],
+    glifos:["1789","a.C.","d.C.","séc. XX","1500","§","Ω","α","1822","1988","N","S"],
+    grandes:["Ω","§","1500"] },
+  geral:{ tag:"Começar", arte:["estrela"], glifos:["★","✦","✧","?","!","+","1","2","3"], grandes:["★","?"] }
+};
+
+/* ---------- estilos ---------- */
+const css = document.createElement("style");
+css.textContent = `
+.jdeco{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:18px;color:var(--jcolor,#4c5cf0)}
+.jd-g{position:absolute;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:800;line-height:1;white-space:nowrap;animation:jdfloat var(--t,7s) ease-in-out var(--d,0s) infinite alternate}
+.jd-g.big{font-weight:900;opacity:.07}
+.jd-a{position:absolute;display:block;opacity:.26;animation:jdfloat var(--t,8s) ease-in-out var(--d,0s) infinite alternate}
+.jd-a svg{display:block;width:100%;height:100%}
+.jd-b{position:absolute;bottom:-26px;border:2px solid currentColor;border-radius:50%;opacity:0;animation:jdrise var(--t,9s) linear var(--d,0s) infinite}
+@keyframes jdfloat{from{transform:translateY(0) rotate(var(--r,0deg))}to{transform:translateY(-12px) rotate(calc(var(--r,0deg) + 7deg))}}
+@keyframes jdrise{0%{transform:translateY(0);opacity:0}12%{opacity:.4}100%{transform:translateY(calc(-1 * var(--h,500px)));opacity:0}}
+@media (prefers-reduced-motion:reduce){.jdeco *{animation:none!important}}
+
+/* fundos */
+.jdeco[data-t="matematica"]{background-image:linear-gradient(color-mix(in srgb,var(--jcolor,#6554c0) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--jcolor,#6554c0) 9%,transparent) 1px,transparent 1px);background-size:24px 24px}
+.jdeco[data-t="linguagens"]{background-image:repeating-linear-gradient(transparent 0 27px,color-mix(in srgb,var(--jcolor,#bd4e83) 13%,transparent) 27px 28px)}
+.jdeco[data-t="natureza"]{background:radial-gradient(circle at 8% 14%,color-mix(in srgb,var(--jcolor,#16866a) 14%,transparent),transparent 42%),radial-gradient(circle at 94% 58%,color-mix(in srgb,var(--jcolor,#16866a) 12%,transparent),transparent 46%),radial-gradient(circle at 20% 92%,color-mix(in srgb,var(--jcolor,#16866a) 10%,transparent),transparent 40%)}
+.jdeco[data-t="humanas"]{background:linear-gradient(180deg,color-mix(in srgb,var(--jcolor,#ad7b29) 9%,transparent),color-mix(in srgb,var(--jcolor,#ad7b29) 3%,transparent)),repeating-linear-gradient(45deg,transparent 0 11px,color-mix(in srgb,var(--jcolor,#ad7b29) 5%,transparent) 11px 12px)}
+
+/* traçado */
+.jpath[data-t="matematica"]>svg .trk{stroke-dasharray:.1 13;stroke-width:7}
+.jpath[data-t="natureza"]>svg .trk{stroke-width:11;stroke:color-mix(in srgb,var(--jcolor,#16866a) 18%,#fff)}
+.jpath[data-t="linguagens"]>svg .trk{stroke-dasharray:3 10;stroke-width:6}
+.jpath[data-t="humanas"]>svg .trk{stroke-dasharray:10 9;stroke-linecap:butt;stroke-width:5}
+/* formato dos botões das fases */
+.jpath[data-t="matematica"] .jn{border-radius:15px}
+.jpath[data-t="natureza"] .jn{border-radius:50% 12% 50% 12%}
+.jpath[data-t="linguagens"] .jn{border-radius:19px 19px 19px 5px}
+.jpath[data-t] .jmotif{display:none}
+`;
+document.head.appendChild(css);
+
+/* ---------- gerador determinístico (a decoração não "pula" a cada recarga) ---------- */
+function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function semente(s){ let h = 7; for(let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; }
+
+function glifo(txt, lado, y, rnd, grande){
+  const s = document.createElement("span"); s.className = "jd-g" + (grande ? " big" : ""); s.textContent = txt;
+  const comp = txt.length > 4, sz = grande ? 62 + rnd() * 30 : (comp ? 12 + rnd() * 4 : 17 + rnd() * 12);
+  const pos = lado === "e" ? "left:" + (3 + rnd() * 11).toFixed(1) + "%" : lado === "d" ? "right:" + (3 + rnd() * 11).toFixed(1) + "%" : "left:" + (34 + rnd() * 26).toFixed(1) + "%";
+  s.style.cssText = pos + ";top:" + y.toFixed(0) + "px;font-size:" + sz.toFixed(0) + "px;--r:" + Math.round((rnd() - .5) * 34) + "deg;--d:" + (rnd() * 4).toFixed(1) + "s;--t:" + (5 + rnd() * 4).toFixed(1) + "s;" + (grande ? "" : "opacity:" + (.2 + rnd() * .22).toFixed(2));
+  return s;
+}
+function desenho(nome, lado, y, rnd){
+  const s = document.createElement("span"); s.className = "jd-a";
+  const sz = 34 + rnd() * 20, pos = lado === "e" ? "left:" + (2 + rnd() * 10).toFixed(1) + "%" : "right:" + (2 + rnd() * 10).toFixed(1) + "%";
+  s.style.cssText = pos + ";top:" + y.toFixed(0) + "px;width:" + sz.toFixed(0) + "px;height:" + sz.toFixed(0) + "px;--r:" + Math.round((rnd() - .5) * 40) + "deg;--d:" + (rnd() * 4).toFixed(1) + "s;--t:" + (6 + rnd() * 4).toFixed(1) + "s";
+  s.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ARTE[nome] || ARTE.estrela) + '</svg>';
+  return s;
+}
+
+function montar(chave){
+  const cfg = TEMAS[chave] || TEMAS.geral;
+  const H = box.offsetHeight || parseFloat(box.style.height) || 600;
+  const rnd = mulberry(semente(chave) + Math.round(H));
+  const layer = document.createElement("div"); layer.className = "jdeco"; layer.dataset.t = chave; layer.setAttribute("aria-hidden", "true");
+  const n = Math.max(6, Math.min(18, Math.round(H / 58)));
+  const pool = cfg.glifos.map(g => [rnd(), g]).sort((a, b) => a[0] - b[0]).map(p => p[1]);   /* embaralha sem repetir */
+  let ia = 0, ig = 0;
+  for(let i = 0; i < n; i++){
+    const lado = i % 2 === 0 ? "e" : "d", y = (i + .5) / n * H - 12 + (rnd() - .5) * 24;
+    if(i % 3 === 1) layer.appendChild(desenho(cfg.arte[ia++ % cfg.arte.length], lado, y, rnd));
+    else layer.appendChild(glifo(pool[ig++ % pool.length], lado, y, rnd, false));
+  }
+  /* símbolos grandes e discretos atrás do caminho */
+  cfg.grandes.slice(0, 2).forEach((g, i) => layer.appendChild(glifo(g, "c", H * (.2 + i * .45) + rnd() * 40, rnd, true)));
+  if(cfg.bolhas){
+    for(let i = 0; i < 6; i++){
+      const b = document.createElement("span"), d = 8 + rnd() * 14; b.className = "jd-b";
+      b.style.cssText = "left:" + (4 + rnd() * 90).toFixed(1) + "%;width:" + d.toFixed(0) + "px;height:" + d.toFixed(0) + "px;--h:" + Math.round(H * .9) + "px;--d:" + (rnd() * 8).toFixed(1) + "s;--t:" + (8 + rnd() * 6).toFixed(1) + "s";
+      layer.appendChild(b);
+    }
+  }
+  return layer;
+}
+
+function aplicar(){
+  const temFases = !!box.querySelector(".jn");
+  if(!temFases){ delete box.dataset.t; return; }
+  if(box.querySelector(":scope > .jdeco")) return;           /* já aplicado nesta renderização */
+  const chave = (tema.dataset.theme && TEMAS[tema.dataset.theme]) ? tema.dataset.theme : "geral";
+  box.dataset.t = chave;
+  box.insertBefore(montar(chave), box.firstChild);
+  const tg = box.querySelector(".jtag"); if(tg) tg.textContent = TEMAS[chave].tag;
+}
+new MutationObserver(aplicar).observe(box, { childList: true });
+aplicar();
+})();
+</script>
 </body>
 </html>
