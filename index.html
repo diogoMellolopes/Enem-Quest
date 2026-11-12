@@ -2565,5 +2565,352 @@ new MutationObserver(aplicar).observe(box, { childList: true });
 aplicar();
 })();
 </script>
+<style>
+#cj-gerar svg{width:16px;height:16px}
+.cj-ov{position:fixed;inset:0;z-index:1000;background:rgba(18,24,58,.8);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom))}
+.cj-box{width:100%;max-width:360px;margin:auto;display:flex;flex-direction:column;gap:10px}
+.cj-cv{width:100%;height:auto;aspect-ratio:640/900;display:block;filter:drop-shadow(0 14px 28px rgba(0,0,0,.4))}
+.cj-st{min-height:14px;text-align:center;color:#fff;font-size:11px;font-weight:650;line-height:1.4}
+.cj-box .btn{margin-top:0;height:46px;font-size:13px;border-radius:12px}
+.cj-box .btn.g{background:#fff}
+</style>
+<script>
+(function(){
+"use strict";
+if(typeof PainelService==="undefined"||typeof PerfilService==="undefined"||typeof Sessao==="undefined"||typeof fmt==="undefined"||typeof ico==="undefined"){
+  console.error("[Cartinha] Cole este bloco depois do script principal do app (antes de </body>).");
+  return;
+}
+
+const FAMILIA='Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const W=640,H=900,S=2;
+
+const NIVEIS=[
+  {min:0,nome:"BRONZE",a:"#e9b98a",b:"#b9764a",c:"#6f3f22",texto:"#3b1f0e",detalhe:"#fbe3c8"},
+  {min:20,nome:"PRATA",a:"#f2f4f8",b:"#b7c0d1",c:"#6c778c",texto:"#252d3d",detalhe:"#ffffff"},
+  {min:50,nome:"OURO",a:"#fff0a8",b:"#e3b53c",c:"#8f6a10",texto:"#4a3507",detalhe:"#fff8d6"},
+  {min:100,nome:"LENDA",a:"#a9c4ff",b:"#4c5cf0",c:"#1f2a85",texto:"#ffffff",detalhe:"#dfe7ff"}
+];
+const SIGLAS={natureza:"NAT",matematica:"MAT",linguagens:"LIN",humanas:"HUM"};
+
+function nivelDe(v){
+  let n=NIVEIS[0];
+  NIVEIS.forEach(x=>{ if(v>=x.min) n=x; });
+  return n;
+}
+
+function sigla(nome,i){
+  const t=typeof temaDaMateria==="function"?temaDaMateria(nome,i):null;
+  if(t&&SIGLAS[t.key]) return SIGLAS[t.key];
+  return String(nome||"?").normalize("NFD").replace(/[^A-Za-z]/g,"").slice(0,3).toUpperCase()||"???";
+}
+
+function estatisticas(d){
+  const l=(d.materias||[]).map((m,i)=>({sigla:sigla(m.nome,i),valor:Number(m.pontos)||0}));
+  l.push({sigla:"OFN",valor:Number(d.ofensiva)||0});
+  l.push({sigla:"QST",valor:Number(d.respondidas)||0});
+  return l.slice(0,6);
+}
+
+function carregarImagem(url){
+  return new Promise(ok=>{
+    if(!url) return ok(null);
+    const im=new Image();
+    if(!/^data:/i.test(url)) im.crossOrigin="anonymous";
+    im.onload=()=>ok(im);
+    im.onerror=()=>ok(null);
+    im.src=url;
+  });
+}
+
+function forma(c){
+  const r=64;
+  c.beginPath();
+  c.moveTo(r,0);
+  c.lineTo(W-r,0);
+  c.quadraticCurveTo(W,0,W,r);
+  c.lineTo(W,H*.8);
+  c.quadraticCurveTo(W,H*.87,W*.9,H*.915);
+  c.lineTo(W*.58,H-22);
+  c.quadraticCurveTo(W*.5,H+4,W*.42,H-22);
+  c.lineTo(W*.1,H*.915);
+  c.quadraticCurveTo(0,H*.87,0,H*.8);
+  c.lineTo(0,r);
+  c.quadraticCurveTo(0,0,r,0);
+  c.closePath();
+}
+
+function desenhar(cv,info){
+  cv.width=W*S;
+  cv.height=H*S;
+  const c=cv.getContext("2d");
+  c.scale(S,S);
+  const n=info.nivel;
+
+  c.save();
+  forma(c);
+  c.clip();
+  const g=c.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,n.a);
+  g.addColorStop(.5,n.b);
+  g.addColorStop(1,n.c);
+  c.fillStyle=g;
+  c.fillRect(0,0,W,H);
+  const r=c.createRadialGradient(W*.7,H*.2,10,W*.7,H*.2,420);
+  r.addColorStop(0,"rgba(255,255,255,.55)");
+  r.addColorStop(1,"rgba(255,255,255,0)");
+  c.fillStyle=r;
+  c.fillRect(0,0,W,H);
+  c.globalAlpha=.12;
+  c.strokeStyle=n.detalhe;
+  c.lineWidth=18;
+  for(let i=-H;i<W+H;i+=64){
+    c.beginPath();
+    c.moveTo(i,0);
+    c.lineTo(i+H*.6,H);
+    c.stroke();
+  }
+  c.globalAlpha=1;
+  c.restore();
+
+  c.save();
+  forma(c);
+  c.lineWidth=8;
+  c.strokeStyle=n.detalhe;
+  c.globalAlpha=.85;
+  c.stroke();
+  c.restore();
+
+  c.fillStyle=n.texto;
+  c.textAlign="center";
+  c.textBaseline="alphabetic";
+  const ov=fmt(info.overall);
+  c.font="800 "+(ov.length>3?96:132)+"px "+FAMILIA;
+  c.fillText(ov,125,170);
+  c.font="800 34px "+FAMILIA;
+  c.fillText("OVR",125,210);
+  c.globalAlpha=.4;
+  c.fillRect(85,230,80,4);
+  c.globalAlpha=1;
+  c.font="800 30px "+FAMILIA;
+  c.fillText("ENEM",125,278);
+  c.font="700 20px "+FAMILIA;
+  c.fillText(n.nome,125,308);
+
+  const cx=395,cy=250,rr=150;
+  c.save();
+  c.beginPath();
+  c.arc(cx,cy,rr,0,Math.PI*2);
+  c.clip();
+  if(info.foto){
+    const m=Math.min(info.foto.width,info.foto.height);
+    c.drawImage(info.foto,(info.foto.width-m)/2,(info.foto.height-m)/2,m,m,cx-rr,cy-rr,rr*2,rr*2);
+  }else{
+    const gg=c.createLinearGradient(cx-rr,cy-rr,cx+rr,cy+rr);
+    gg.addColorStop(0,"#4c5cf0");
+    gg.addColorStop(1,"#7b86ff");
+    c.fillStyle=gg;
+    c.fillRect(cx-rr,cy-rr,rr*2,rr*2);
+    c.fillStyle="#fff";
+    c.font="800 150px "+FAMILIA;
+    c.textAlign="center";
+    c.fillText(info.inicial,cx,cy+52);
+  }
+  c.restore();
+  c.beginPath();
+  c.arc(cx,cy,rr,0,Math.PI*2);
+  c.lineWidth=8;
+  c.strokeStyle=n.detalhe;
+  c.stroke();
+
+  c.fillStyle=n.texto;
+  c.textAlign="center";
+  const nome=info.nome.toUpperCase();
+  let tam=52;
+  c.font="800 "+tam+"px "+FAMILIA;
+  while(c.measureText(nome).width>480&&tam>22){
+    tam-=2;
+    c.font="800 "+tam+"px "+FAMILIA;
+  }
+  c.fillText(nome,W/2,490);
+  c.globalAlpha=.45;
+  c.fillRect(W/2-190,515,380,4);
+  c.globalAlpha=1;
+
+  info.stats.forEach((s,i)=>{
+    const col=i<3?0:1,linha=i%3,vx=col?455:215,y=590+linha*65;
+    c.textAlign="right";
+    c.font="800 46px "+FAMILIA;
+    c.fillText(fmt(s.valor),vx,y);
+    c.textAlign="left";
+    c.font="600 34px "+FAMILIA;
+    c.globalAlpha=.85;
+    c.fillText(s.sigla,vx+16,y);
+    c.globalAlpha=1;
+  });
+  c.globalAlpha=.35;
+  c.fillRect(319,555,3,185);
+  c.globalAlpha=1;
+
+  c.textAlign="center";
+  c.globalAlpha=.8;
+  if("letterSpacing" in c) c.letterSpacing="3px";
+  c.font="800 22px "+FAMILIA;
+  c.fillText("ENEM QUEST",W/2,800);
+  if("letterSpacing" in c) c.letterSpacing="0px";
+  c.font="600 16px "+FAMILIA;
+  c.fillText(fmt(info.pontos)+" pontos acumulados",W/2,826);
+  c.globalAlpha=1;
+}
+
+let overlay=null;
+
+function fechar(){
+  if(overlay){
+    overlay.remove();
+    overlay=null;
+    document.body.style.overflow="";
+  }
+}
+
+function botao(texto,classe){
+  const b=document.createElement("button");
+  b.type="button";
+  b.className=classe;
+  b.textContent=texto;
+  return b;
+}
+
+function exportar(cv){
+  return new Promise((ok,no)=>{
+    try{
+      cv.toBlob(b=>b?ok(b):no(new Error("EXPORTACAO")),"image/png");
+    }catch(e){
+      no(e);
+    }
+  });
+}
+
+function criarModal(){
+  fechar();
+  overlay=document.createElement("div");
+  overlay.className="cj-ov";
+  const caixa=document.createElement("div");
+  caixa.className="cj-box";
+  const cv=document.createElement("canvas");
+  cv.className="cj-cv";
+  cv.width=W;
+  cv.height=H;
+  const st=document.createElement("div");
+  st.className="cj-st";
+  st.setAttribute("role","status");
+  st.textContent="Montando sua cartinha...";
+  const baixar=botao("Baixar imagem","btn p");
+  const comp=botao("Compartilhar","btn g");
+  const fch=botao("Fechar","btn g");
+  baixar.disabled=true;
+  comp.disabled=true;
+  if(!navigator.share) comp.classList.add("hide");
+
+  baixar.onclick=async()=>{
+    try{
+      const blob=await exportar(cv);
+      const u=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=u;
+      a.download="cartinha-enem-quest.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(u),2000);
+    }catch(e){
+      console.error(e);
+      st.textContent="Não foi possível exportar a imagem.";
+    }
+  };
+
+  comp.onclick=async()=>{
+    try{
+      const blob=await exportar(cv);
+      const arq=new File([blob],"cartinha-enem-quest.png",{type:"image/png"});
+      if(navigator.canShare&&navigator.canShare({files:[arq]})){
+        await navigator.share({files:[arq],title:"Minha cartinha no ENEM Quest"});
+      }else{
+        st.textContent="Seu navegador não permite compartilhar arquivos. Use Baixar imagem.";
+      }
+    }catch(e){
+      if(e&&e.name!=="AbortError"){
+        console.error(e);
+        st.textContent="Não foi possível compartilhar a imagem.";
+      }
+    }
+  };
+
+  fch.onclick=fechar;
+  overlay.addEventListener("click",ev=>{ if(ev.target===overlay) fechar(); });
+  caixa.append(cv,st,baixar,comp,fch);
+  overlay.appendChild(caixa);
+  document.body.appendChild(overlay);
+  document.body.style.overflow="hidden";
+  return {cv,st,baixar,comp};
+}
+
+async function gerar(){
+  const s=Sessao.get();
+  if(!s) return;
+  const gatilho=document.getElementById("cj-gerar");
+  gatilho.disabled=true;
+  const m=criarModal();
+  try{
+    const d=await PainelService.carregar(s.userId);
+    let fotoUrl=s.fotoPerfil||null;
+    if(!fotoUrl){
+      try{
+        const p=await PerfilService.carregar(s.userId);
+        fotoUrl=(p&&p.FotoPerfil)||null;
+      }catch(e){}
+    }
+    const foto=await carregarImagem(fotoUrl);
+    const nome=(s.nome||s.email||"Jogador").trim();
+    const overall=Number(d.overall)||0;
+    desenhar(m.cv,{
+      overall,
+      pontos:Number(d.pontos)||0,
+      nivel:nivelDe(overall),
+      nome,
+      inicial:(nome.charAt(0)||"?").toUpperCase(),
+      foto,
+      stats:estatisticas(d)
+    });
+    m.st.textContent="Sua cartinha está pronta!";
+    m.baixar.disabled=false;
+    m.comp.disabled=false;
+  }catch(e){
+    console.error(e);
+    m.st.textContent="Não foi possível montar a cartinha: "+traduzir(e);
+  }finally{
+    gatilho.disabled=false;
+  }
+}
+
+function instalar(){
+  const painel=document.getElementById("v-overall");
+  if(!painel||document.getElementById("cj-gerar")) return;
+  const alvo=painel.querySelector(".sec-t");
+  if(!alvo) return;
+  const b=document.createElement("button");
+  b.id="cj-gerar";
+  b.type="button";
+  b.className="btn p";
+  b.innerHTML=ico("star")+"Gerar minha cartinha";
+  b.onclick=gerar;
+  alvo.parentNode.insertBefore(b,alvo);
+}
+
+addEventListener("hashchange",fechar);
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape") fechar(); });
+instalar();
+})();
+</script>
 </body>
 </html>
