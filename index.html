@@ -433,7 +433,9 @@ body[data-view="perfil"] #v-perfil{flex:1;min-height:calc(100svh - 85px);padding
 .qmeta{font-size:10px;color:var(--muted);font-weight:650;margin:2px 0 8px}
 .qcard{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}
 .qtxt{font-size:12px;line-height:1.55;color:#28366c;white-space:pre-line;word-break:break-word}
-.qimg{display:block;max-width:100%;height:auto;border-radius:10px;margin:10px auto 0}
+.qimg{display:block;max-width:100%;height:auto;border-radius:10px;margin:10px auto}
+.qinl{display:inline-block;vertical-align:middle;max-width:100%;height:auto;margin:0 3px}
+.qlink{color:#4659d8;font-weight:700;text-decoration:underline;word-break:break-all}
 .ops{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .op{display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px;font:inherit;color:#26345f;cursor:pointer}
 .op i{flex:none;width:24px;height:24px;border-radius:8px;background:#eef1ff;color:#4659d8;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:11px}
@@ -1469,6 +1471,30 @@ function urlSegura(v){
   v = v.trim();
   return /^(https?:\/\/|data:image\/)/i.test(v) ? v : null;
 }
+/* Texto da questão com imagens: reconhece ![](url) e links de imagem soltos no meio do texto */
+const RE_IMG_TEXTO = /!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"')\]]+?\.(?:png|jpe?g|gif|webp|svg)(?:\?[^\s<>"')\]]*)?)|(https?:\/\/enem\.dev\/[^\s<>"')\]]+)/gi;
+function imagemDoTexto(url){
+  const im = document.createElement("img"); im.src = url; im.alt = "Imagem da questão"; im.className = "qinl"; im.loading = "lazy";
+  /* imagem pequena (fórmula) fica na linha; figura grande vira bloco centralizado */
+  im.onload = () => { if(im.naturalHeight > 90 || im.naturalWidth > 360) im.className = "qimg"; };
+  im.onerror = () => {
+    const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.className = "qlink"; a.textContent = "[ver imagem]"; im.replaceWith(a);
+  };
+  return im;
+}
+function renderTextoRico(box, texto, usadas){
+  box.textContent = "";
+  const t = String(texto || ""); let ult = 0, m; RE_IMG_TEXTO.lastIndex = 0;
+  while((m = RE_IMG_TEXTO.exec(t))){
+    if(m.index > ult) box.appendChild(document.createTextNode(t.slice(ult, m.index)));
+    const u = urlSegura(m[1] || m[2] || m[3]);
+    if(u){ if(usadas) usadas.add(u); box.appendChild(imagemDoTexto(u)); }
+    else box.appendChild(document.createTextNode(m[0]));
+    ult = m.index + m[0].length;
+  }
+  if(ult < t.length) box.appendChild(document.createTextNode(t.slice(ult)));
+}
 function novaImg(url, classe){
   const im = document.createElement("img"); im.src = url; im.alt = "Imagem da questão"; im.loading = "lazy";
   if(classe) im.className = classe; im.onerror = () => im.remove(); return im;
@@ -1633,10 +1659,12 @@ function selecionarAlt(letra, btn){
 function renderQuestao(q){
   $("#qtit").textContent = "Fase " + (Number(q.posicao) + 1);
   $("#qmeta").textContent = [q.materia, "Questão " + (Number(q.posicao) + 1) + " de " + q.total, q.ano ? "ENEM " + q.ano : null].filter(Boolean).join(" · ");
-  $("#qtxt").textContent = q.texto || q.nome || "";
+  const usadas = new Set();
+  renderTextoRico($("#qtxt"), q.texto || q.nome || "", usadas);
   const imgs = $("#qimgs"); imgs.textContent = "";
   let lista = q.imagens; if(typeof lista === "string"){ try{ lista = JSON.parse(lista); }catch(e){ lista = []; } }
-  (Array.isArray(lista) ? lista : []).forEach(it => { const u = urlSegura(it); if(u) imgs.appendChild(novaImg(u, "qimg")); });
+  /* imagens do campo ImagemQuestao que já apareceram dentro do texto não são repetidas */
+  (Array.isArray(lista) ? lista : []).forEach(it => { const u = urlSegura(it); if(u && !usadas.has(u)) imgs.appendChild(novaImg(u, "qimg")); });
 
   const ops = $("#ops"); ops.textContent = ""; qSel = null; $("#qconf").disabled = true;
   (q.alternativas || []).forEach(a => {
@@ -1644,8 +1672,9 @@ function renderQuestao(q){
     b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
     const l = document.createElement("i"); l.textContent = a.letter;
     const c = document.createElement("div");
-    if(a.text){ const sp = document.createElement("span"); sp.textContent = a.text; c.appendChild(sp); }
-    const u = urlSegura(a.file); if(u) c.appendChild(novaImg(u, "qimg"));
+    const usadasAlt = new Set();
+    if(a.text){ const sp = document.createElement("span"); renderTextoRico(sp, a.text, usadasAlt); c.appendChild(sp); }
+    const u = urlSegura(a.file); if(u && !usadasAlt.has(u)) c.appendChild(novaImg(u, "qimg"));
     b.append(l, c); b.onclick = () => selecionarAlt(a.letter, b); ops.appendChild(b);
   });
   if(!(q.alternativas || []).length) msg("qmsg", "Esta questão está sem alternativas no banco.", "e");
@@ -1681,7 +1710,9 @@ function mostrarResultado(r){
     pts.textContent = p > 0 ? "+" + p + (p === 1 ? " ponto" : " pontos") : "Sem pontos novos (você já tinha acertado esta questão)";
   } else {
     const alt = ((qAtual && qAtual.alternativas) || []).find(a => a.letter === r.resposta);
-    $("#resp").textContent = "A alternativa correta era " + r.resposta + (alt && alt.text ? ": " + alt.text : "") + ". Sua jornada em " + mat + " recomeça do início.";
+    const rp = $("#resp"); rp.textContent = "A alternativa correta era " + r.resposta + (alt && alt.text ? ": " : "");
+    if(alt && alt.text){ const sp = document.createElement("span"); renderTextoRico(sp, alt.text); rp.appendChild(sp); }
+    rp.appendChild(document.createTextNode(". Sua jornada em " + mat + " recomeça do início."));
     pts.classList.add("hide");
   }
   $("#rescont").textContent = ok ? "Continuar jornada" : "Recomeçar jornada";
